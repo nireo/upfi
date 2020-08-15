@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/middleware"
 
@@ -12,7 +12,7 @@ import (
 
 func main() {
 	// Load database
-	db, err := gorm.Open("sqlite3", "./database.db")
+	db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=upfi sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
