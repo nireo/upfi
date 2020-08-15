@@ -2,11 +2,23 @@ package server
 
 import (
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 )
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
 
 func AuthLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -22,21 +34,22 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user.Password != password {
+	if !checkPasswordHash(password, user.Password) {
 		fmt.Fprintf(w, "Incorrect credentials")
 		return
 	}
 
-	fmt.Fprintf(w, "Successfully Uploaded file")
+	fmt.Fprintf(w, "Successfully logged in!")
 }
 
 func AuthRegister(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		return
 	}
-	db := lib.GetDatabase()
 
+	db := lib.GetDatabase()
 	username := r.FormValue("username")
+	password := r.FormValue("password")
 
 	var exists models.User
 	if err := db.Where("username = ?", username).First(&exists); err == nil {
@@ -44,14 +57,21 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hash, err := hashPassword(password)
+	if err != nil {
+		fmt.Fprintf(w, "Internal server error")
+		return
+	}
+
+
 	newUser := models.User{
 		Username: username,
-		Password: r.FormValue("password"),
+		Password: hash,
 		UUID:     lib.GenerateUUID(),
 	}
 
 	db.NewRecord(newUser)
 	db.Create(&newUser)
 
-	fmt.Fprintf(w, "Successfully registered")
+	fmt.Fprintf(w, "Successfully registered!")
 }
