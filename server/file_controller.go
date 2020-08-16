@@ -34,7 +34,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		fmt.Println("Error: Cannot find form file in request")
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 	// create file entry to the database
@@ -51,19 +51,23 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 	extension := lib.GetFileExtension(handler.Filename)
 
-	tempFile, err := ioutil.TempFile("./files", "file-*."+extension)
+
+	userDirectory := fmt.Sprintf("./files/%s", user.UUID)
+	tempFile, err := ioutil.TempFile(userDirectory, newFileEntry.UUID+extension)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
 	defer tempFile.Close()
 
 	fileBytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
 
 	tempFile.Write(fileBytes)
-	fmt.Fprintf(w, "Successfully Uploaded file")
+	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
 
 func FilesController(w http.ResponseWriter, r *http.Request) {

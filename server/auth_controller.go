@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"os"
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
@@ -19,7 +20,6 @@ func checkPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-
 func AuthLogin(w http.ResponseWriter, r *http.Request) {
 	store := lib.GetStore()
 	session, _ := store.Get(r, "auth")
@@ -32,12 +32,12 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 	db := lib.GetDatabase()
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		fmt.Fprintf(w, "User not found")
+		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
-	if checkPasswordHash(password, user.Password) {
-		fmt.Fprintf(w, "Incorrect credentials")
+	if !checkPasswordHash(password, user.Password) {
+		http.Error(w, "Incorrect credentials", http.StatusForbidden)
 		return
 	}
 
@@ -45,10 +45,11 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 	session.Values["authenticated"] = true
 	err := session.Save(r, w)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error saving session", http.StatusInternalServerError)
+		return
 	}
 
-	fmt.Fprintf(w, "Successfully logged in!")
+	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
 
 func AuthRegister(w http.ResponseWriter, r *http.Request) {
@@ -62,13 +63,13 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 
 	var exists models.User
 	if err := db.Where("username = ?", username).First(&exists); err == nil {
-		fmt.Fprintf(w, "User with username %s already exists", username)
+		http.Error(w, fmt.Sprintf("User with username %s already exists", username), http.StatusConflict)
 		return
 	}
 
 	hash, err := hashPassword(password)
 	if err != nil {
-		fmt.Fprintf(w, "Internal server error")
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -78,8 +79,14 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 		UUID:     lib.GenerateUUID(),
 	}
 
+	// create a directory which stores all of the user's files
+	err = os.Mkdir("./files/"+newUser.UUID, os.ModePerm)
+	if err != nil {
+		http.Error(w, "Failed user directory creation", http.StatusInternalServerError)
+		return
+	}
+
 	db.NewRecord(newUser)
 	db.Create(&newUser)
-
-	fmt.Fprintf(w, "Successfully registered!")
+	http.Redirect(w, r, "http://localhost:8080/login.html", http.StatusMovedPermanently)
 }
