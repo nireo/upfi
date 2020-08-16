@@ -21,12 +21,16 @@ func main() {
 	defer db.Close()
 	lib.SetDatabase(db)
 
-	// Setup HTTP Handler
-	http.HandleFunc("/upload", server.UploadFile)
+	// 			Setup HTTP Handler
+	// Auth routes
 	http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
 	http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
+
+	// File routes
+	http.HandleFunc("/upload", server.UploadFile)
 	http.HandleFunc("/file", server.SingleFileController)
 	http.HandleFunc("/files", server.FilesController)
+
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.ListenAndServe(":8080", nil)
 }
