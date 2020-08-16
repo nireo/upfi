@@ -10,6 +10,8 @@ type File struct {
 	Filename    string
 	UUID        string
 	Description string
+	Size 		int64
+	UserID 		uint
 }
 
 func (file *File) Serialize() lib.JSON {

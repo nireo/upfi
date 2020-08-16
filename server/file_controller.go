@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/nireo/upfi/models"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -9,22 +10,48 @@ import (
 	"github.com/nireo/upfi/lib"
 )
 
+type FilePage struct {
+	PageTitle string
+	Files []models.File
+}
+
 func UploadFile(w http.ResponseWriter, r *http.Request) {
+	store := lib.GetStore()
+	db := lib.GetDatabase()
+	session, _ := store.Get(r, "auth")
+
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var user models.User
+	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
 	r.ParseMultipartForm(10 << 20)
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		fmt.Println("Error: Cannot find form file in request")
 		return
 	}
-
-	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-	fmt.Printf("File Size: %+v\n", handler.Size)
-	fmt.Printf("MIME Header: %+v\n", handler.Header)
+	// create file entry to the database
+	newFileEntry := &models.File{
+		Filename:    handler.Filename,
+		UUID:        lib.GenerateUUID(),
+		Description: r.FormValue("description"),
+		Size:        handler.Size,
+		UserID:      user.ID,
+	}
+	db.NewRecord(newFileEntry)
+	db.Create(newFileEntry)
 
 	defer file.Close()
 	extension := lib.GetFileExtension(handler.Filename)
 
-	tempFile, err := ioutil.TempFile("files", "file-*."+extension)
+	tempFile, err := ioutil.TempFile("./files", "file-*."+extension)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -39,17 +66,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Successfully Uploaded file")
 }
 
-type File struct {
-	Title string
-}
-
-type FilePage struct {
-	PageTitle string
-	Files []File
-}
-
 func FilesController(w http.ResponseWriter, r *http.Request) {
 	store := lib.GetStore()
+	db := lib.GetDatabase()
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
@@ -57,14 +76,22 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var user models.User
+	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var files []models.File
+	if err := db.Model(&user).Related(&files).Error; err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	data := FilePage{
 		PageTitle: "Your files",
-		Files: []File {
-			{Title: "Videos"},
-			{Title: "Messages"},
-			{Title: "Documents"},
-		},
+		Files: files,
 	}
 
 	tmpl.Execute(w, data)
