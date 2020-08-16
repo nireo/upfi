@@ -96,3 +96,33 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 
 	tmpl.Execute(w, data)
 }
+
+func SingleFileController(w http.ResponseWriter, r *http.Request) {
+	keys, ok := r.URL.Query()["file"]
+	if !ok || len(keys[0]) < 1 {
+		http.Error(w, "You need to provide file ID", http.StatusBadRequest)
+		return
+	}
+	store := lib.GetStore()
+	db := lib.GetDatabase()
+	session, _ := store.Get(r, "auth")
+
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var user models.User
+	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var file models.File
+	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
+	tmpl.Execute(w, file)
+}

@@ -10,7 +10,7 @@
             integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
             crossorigin="anonymous"
     />
-    <title>Files - upfi</title>
+    <title>File {{.Filename}} - upfi</title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -38,13 +38,10 @@
         </ul>
     </div>
 </nav>
-<div class="container">
-    <h1>Files</h1>
-    <ul>
-        {{range .Files}}
-            <li>{{.Filename}} {{.UUID}}</li>
-        {{end}}
-    </ul>
+<div class="container mt-3">
+    <h2>File {{.Filename}}</h2>
+    <p class="text-muted">{{.Description}}</p>
+    <button class="btn btn-info">Download</button>
 </div>
 </body>
 </html>

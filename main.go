@@ -25,6 +25,7 @@ func main() {
 	http.HandleFunc("/upload", server.UploadFile)
 	http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
 	http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
+	http.HandleFunc("/file", server.SingleFileController)
 	http.HandleFunc("/files", server.FilesController)
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.ListenAndServe(":8080", nil)
