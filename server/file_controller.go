@@ -12,7 +12,7 @@ import (
 
 type FilePage struct {
 	PageTitle string
-	Files []models.File
+	Files     []models.File
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +55,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 	extension := lib.GetFileExtension(handler.Filename)
-
 
 	userDirectory := fmt.Sprintf("./files/%s", user.UUID)
 	tempFile, err := ioutil.TempFile(userDirectory, newFileEntry.UUID+extension)
@@ -105,7 +104,7 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	data := FilePage{
 		PageTitle: "Your files",
-		Files: files,
+		Files:     files,
 	}
 
 	err := tmpl.Execute(w, data)
@@ -224,4 +223,40 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 
 	db.Save(&file)
 	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
+}
+
+func ServeUpdateForm(w http.ResponseWriter, r *http.Request) {
+	keys, ok := r.URL.Query()["file"]
+	if !ok || len(keys[0]) < 1 {
+		http.Error(w, "You need to provide file ID", http.StatusBadRequest)
+		return
+	}
+	store := lib.GetStore()
+	db := lib.GetDatabase()
+	session, _ := store.Get(r, "auth")
+
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var user models.User
+	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var file models.File
+	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles("./templates/update_file_info_template.html"))
+
+	err := tmpl.Execute(w, file)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
