@@ -21,6 +21,8 @@ func checkPasswordHash(password, hash string) bool {
 
 
 func AuthLogin(w http.ResponseWriter, r *http.Request) {
+	store := lib.GetStore()
+	session, _ := store.Get(r, "auth")
 	if r.Method != http.MethodPost {
 		return
 	}
@@ -34,9 +36,16 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !checkPasswordHash(password, user.Password) {
+	if checkPasswordHash(password, user.Password) {
 		fmt.Fprintf(w, "Incorrect credentials")
 		return
+	}
+
+	session.Values["username"] = username
+	session.Values["authenticated"] = true
+	err := session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	fmt.Fprintf(w, "Successfully logged in!")
@@ -62,7 +71,6 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Internal server error")
 		return
 	}
-
 
 	newUser := models.User{
 		Username: username,

@@ -49,6 +49,14 @@ type FilePage struct {
 }
 
 func FilesController(w http.ResponseWriter, r *http.Request) {
+	store := lib.GetStore()
+	session, _ := store.Get(r, "auth")
+
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	data := FilePage{
 		PageTitle: "Your files",
