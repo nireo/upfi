@@ -31,7 +31,8 @@ func main() {
 	http.HandleFunc("/file", server.SingleFileController)
 	http.HandleFunc("/files", server.FilesController)
 	http.HandleFunc("/delete", server.DeleteFile)
+	http.HandleFunc("/update", server.UpdateFile)
 
 	http.Handle("/", http.FileServer(http.Dir("./static")))
-	http.ListenAndServe(":8080", nil)
+	_ = http.ListenAndServe(":8080", nil)
 }

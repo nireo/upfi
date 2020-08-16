@@ -31,7 +31,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseMultipartForm(10 << 20)
+	err := r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
@@ -66,7 +71,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tempFile.Write(fileBytes)
+	_, err = tempFile.Write(fileBytes)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
 
@@ -98,7 +108,11 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 		Files: files,
 	}
 
-	tmpl.Execute(w, data)
+	err := tmpl.Execute(w, data)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func SingleFileController(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +142,11 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
-	tmpl.Execute(w, file)
+	err := tmpl.Execute(w, file)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func DeleteFile(w http.ResponseWriter, r *http.Request) {
@@ -164,5 +182,46 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.Delete(&file)
+	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
+}
+
+func UpdateFile(w http.ResponseWriter, r *http.Request) {
+	keys, ok := r.URL.Query()["file"]
+	if !ok || len(keys[0]) < 1 {
+		http.Error(w, "You need to provide file ID", http.StatusBadRequest)
+		return
+	}
+	store := lib.GetStore()
+	db := lib.GetDatabase()
+	session, _ := store.Get(r, "auth")
+
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var user models.User
+	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	var file models.File
+	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	title := r.FormValue("title")
+	if title != "" {
+		file.Filename = title
+	}
+
+	description := r.FormValue("description")
+	if description != "" {
+		file.Description = description
+	}
+
+	db.Save(&file)
 	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
