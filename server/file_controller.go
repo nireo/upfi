@@ -128,11 +128,6 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteFile(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Wrong method", http.StatusBadRequest)
-		return
-	}
-
 	keys, ok := r.URL.Query()["file"]
 	if !ok || len(keys[0]) < 1 {
 		http.Error(w, "You need to provide file ID", http.StatusBadRequest)

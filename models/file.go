@@ -22,3 +22,9 @@ func (file *File) Serialize() lib.JSON {
 		"uuid":        file.UUID,
 	}
 }
+
+// add a method to delete since we need this in the html template
+func (file *File) Delete() {
+	db := lib.GetDatabase()
+	db.Delete(&file)
+}

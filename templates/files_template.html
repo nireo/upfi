@@ -15,7 +15,8 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#">upfi</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -40,11 +41,27 @@
 </nav>
 <div class="container">
     <h1>Files</h1>
-    <ul>
+    <table style="width:100%">
+        <tr>
+            <th>Filename</th>
+            <th>ID</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+        </tr>
         {{range .Files}}
-            <li>{{.Filename}} {{.UUID}}</li>
+            <tr>
+                <td>{{ .Filename }}</td>
+                <td>{{ .UUID }}</td>
+                <td>{{ .Size}}</td>
+                <td>{{ .CreatedAt }}</td>
+                <td>
+                    <form method="post" action="http://localhost:8080/delete?file={{ .UUID }}" >
+                        <button type="submit">delete</button>
+                    </form>
+                </td>
+            </tr>
         {{end}}
-    </ul>
+    </table>
 </div>
 </body>
 </html>
