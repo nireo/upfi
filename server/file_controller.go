@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 
@@ -36,4 +37,27 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	tempFile.Write(fileBytes)
 	fmt.Fprintf(w, "Successfully Uploaded file")
+}
+
+type File struct {
+	Title string
+}
+
+type FilePage struct {
+	PageTitle string
+	Files []File
+}
+
+func FilesController(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
+	data := FilePage{
+		PageTitle: "Your files",
+		Files: []File {
+			{Title: "Videos"},
+			{Title: "Messages"},
+			{Title: "Documents"},
+		},
+	}
+
+	tmpl.Execute(w, data)
 }
