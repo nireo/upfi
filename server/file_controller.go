@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 
 	"github.com/nireo/upfi/lib"
 )
@@ -25,13 +26,13 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := models.FindOneFile(&models.User{Username: session.Values["username"].(string)})
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
-	err := r.ParseMultipartForm(10 << 20)
+	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -52,12 +53,11 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	db.NewRecord(newFileEntry)
 	db.Create(newFileEntry)
-
 	defer file.Close()
-	extension := lib.GetFileExtension(handler.Filename)
 
+	newFileName := fmt.Sprintf("*.%s%s", newFileEntry.UUID, filepath.Ext(newFileEntry.Filename))
 	userDirectory := fmt.Sprintf("./files/%s", user.UUID)
-	tempFile, err := ioutil.TempFile(userDirectory, newFileEntry.UUID+extension)
+	tempFile, err := ioutil.TempFile(userDirectory, newFileName)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -107,7 +107,7 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 		Files:     files,
 	}
 
-	err := tmpl.Execute(w, data)
+	err = tmpl.Execute(w, data)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -121,7 +121,6 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	store := lib.GetStore()
-	db := lib.GetDatabase()
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
@@ -135,14 +134,19 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := models.FindOneFile(&models.File{UUID: keys[0]}))
+	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
 	}
 
+	if user.ID != file.UserID {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
 	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
-	err := tmpl.Execute(w, file)
+	err = tmpl.Execute(w, file)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -212,18 +216,37 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	title := r.FormValue("title")
-	if title != "" {
-		file.Filename = title
+	if user.ID != file.UserID {
+		// if the user doesn't own the file, he doesn't need to know of it's existence
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
 	}
 
-	description := r.FormValue("description")
-	if description != "" {
-		file.Description = description
+	switch r.Method {
+	case http.MethodPost:
+		title := r.FormValue("title")
+		if title != "" {
+			file.Filename = title
+		}
+
+		description := r.FormValue("description")
+		if description != "" {
+			file.Description = description
+		}
+
+		db.Save(&file)
+		http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
+	case http.MethodGet:
+		tmpl := template.Must(template.ParseFiles("./templates/update_file_info_template.html"))
+		err = tmpl.Execute(w, file)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
 
-	db.Save(&file)
-	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
 
 func ServeUpdateForm(w http.ResponseWriter, r *http.Request) {
@@ -233,7 +256,6 @@ func ServeUpdateForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	store := lib.GetStore()
-	db := lib.GetDatabase()
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
@@ -249,13 +271,17 @@ func ServeUpdateForm(w http.ResponseWriter, r *http.Request) {
 
 	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusNotFound)
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	if user.ID != file.UserID {
+		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	}
 
 	tmpl := template.Must(template.ParseFiles("./templates/update_file_info_template.html"))
-
-	err := tmpl.Execute(w, file)
+	err = tmpl.Execute(w, file)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return

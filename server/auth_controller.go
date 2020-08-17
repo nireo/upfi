@@ -29,7 +29,6 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	db := lib.GetDatabase()
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
@@ -43,7 +42,7 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 
 	session.Values["username"] = username
 	session.Values["authenticated"] = true
-	err := session.Save(r, w)
+	err = session.Save(r, w)
 	if err != nil {
 		http.Error(w, "Error saving session", http.StatusInternalServerError)
 		return
