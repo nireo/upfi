@@ -246,44 +246,4 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
-
-}
-
-func ServeUpdateForm(w http.ResponseWriter, r *http.Request) {
-	keys, ok := r.URL.Query()["file"]
-	if !ok || len(keys[0]) < 1 {
-		http.Error(w, "You need to provide file ID", http.StatusBadRequest)
-		return
-	}
-	store := lib.GetStore()
-	session, _ := store.Get(r, "auth")
-
-	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
-	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
-	if err != nil {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-
-	if user.ID != file.UserID {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-
-	tmpl := template.Must(template.ParseFiles("./templates/update_file_info_template.html"))
-	err = tmpl.Execute(w, file)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
 }
