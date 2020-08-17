@@ -1,6 +1,8 @@
 package models
 
 import (
+	"os"
+
 	"github.com/jinzhu/gorm"
 	"github.com/nireo/upfi/lib"
 )
@@ -24,7 +26,25 @@ func (file *File) Serialize() lib.JSON {
 }
 
 // add a method to delete since we need this in the html template
-func (file *File) Delete() {
+func (file *File) Delete(userId string) error {
 	db := lib.GetDatabase()
+
+	err := os.Remove("./files/"+userId+"/"+file.Filename)
+	if err != nil {
+		return err
+	}
+
 	db.Delete(&file)
+	return nil
+}
+
+func FindOneFile(condition interface{}) (*File, error) {
+	db := lib.GetDatabase()
+
+	var file models.File
+	if err := db.Where(condition).First(&file).Error; err != nil {
+		return &file, err
+	}
+
+	return &file, nil
 }
