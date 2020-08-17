@@ -30,8 +30,8 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	db := lib.GetDatabase()
-	var user models.User
-	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
@@ -61,8 +61,8 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	var exists models.User
-	if err := db.Where("username = ?", username).First(&exists); err == nil {
+	_, err := models.FindOneUser(&models.User{Username: username})
+	if err == nil {
 		http.Error(w, fmt.Sprintf("User with username %s already exists", username), http.StatusConflict)
 		return
 	}

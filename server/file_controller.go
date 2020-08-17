@@ -25,8 +25,8 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+	user, err := models.FindOneFile(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -89,8 +89,8 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
@@ -129,17 +129,18 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
-	var file models.File
-	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
+	file, err := models.FindOneFile(&models.File{UUID: keys[0]}))
+	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
 	}
+
 	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
 	err := tmpl.Execute(w, file)
 	if err != nil {
@@ -163,14 +164,14 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
-	var file models.File
-	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
+	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
+	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
 	}
@@ -199,14 +200,14 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
-	var file models.File
-	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
+	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
+	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
 	}
@@ -240,15 +241,15 @@ func ServeUpdateForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := db.Where(&models.User{Username: session.Values["username"].(string)}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
-	var file models.File
-	if err := db.Where(&models.File{UUID: keys[0]}).First(&file).Error; err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
+	if err != nil {
+		http.Error(w, "Forbidden", http.StatusNotFound)
 		return
 	}
 
