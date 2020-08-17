@@ -12,8 +12,8 @@ type File struct {
 	Filename    string
 	UUID        string
 	Description string
-	Size 		int64
-	UserID 		uint
+	Size        int64
+	UserID      uint
 }
 
 func (file *File) Serialize() lib.JSON {
@@ -29,7 +29,7 @@ func (file *File) Serialize() lib.JSON {
 func (file *File) Delete(userId string) error {
 	db := lib.GetDatabase()
 
-	err := os.Remove("./files/"+userId+"/"+file.Filename)
+	err := os.Remove("./files/" + userId + "/" + file.Filename)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (file *File) Delete(userId string) error {
 func FindOneFile(condition interface{}) (*File, error) {
 	db := lib.GetDatabase()
 
-	var file models.File
+	var file File
 	if err := db.Where(condition).First(&file).Error; err != nil {
 		return &file, err
 	}
