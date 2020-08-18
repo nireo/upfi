@@ -141,7 +141,7 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 
 	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
 	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+		lib.HttpNotFoundHandler(w, r)
 		return
 	}
 
@@ -181,7 +181,7 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 
 	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
 	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+		lib.HttpNotFoundHandler(w, r)
 		return
 	}
 
@@ -218,13 +218,13 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 
 	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
 	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+		lib.HttpNotFoundHandler(w, r)
 		return
 	}
 
 	if user.ID != file.UserID {
 		// if the user doesn't own the file, he doesn't need to know of it's existence
-		http.Error(w, "File not found", http.StatusNotFound)
+		lib.HttpNotFoundHandler(w, r)
 		return
 	}
 
@@ -276,12 +276,12 @@ func DownloadFile(w http.ResponseWriter, r *http.Request) {
 
 	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
 	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+		lib.HttpNotFoundHandler(w, r)
 		return
 	}
 
 	if user.ID != file.UserID {
-		http.Error(w, "File not found", http.StatusNotFound)
+		lib.HttpNotFoundHandler(w, r)
 		return
 	}
 	http.ServeFile(w, r, "./files/"+
