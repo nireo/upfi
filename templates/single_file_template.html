@@ -52,10 +52,10 @@
       <h2>File {{.Filename}}</h2>
       <p class="text-muted">{{.Description}}</p>
       <form
-        method="get"
+        method="post"
         action="http://localhost:8080/download?file={{ .UUID }}"
       >
-        <button class="btn btn-info">Download</button>
+        <button type="submit" class="size-sm btn btn-info">Download</button>
       </form>
     </div>
   </body>

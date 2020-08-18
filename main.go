@@ -7,8 +7,9 @@ import (
 	"github.com/nireo/upfi/middleware"
 	"github.com/nireo/upfi/models"
 
-	"github.com/nireo/upfi/server"
 	"net/http"
+
+	"github.com/nireo/upfi/server"
 )
 
 func main() {
@@ -21,7 +22,7 @@ func main() {
 	defer db.Close()
 	lib.SetDatabase(db)
 
-	// 			Setup HTTP Handler
+	// Setup HTTP Handler
 	// Auth routes
 	http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
 	http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
