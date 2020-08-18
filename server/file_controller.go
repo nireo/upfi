@@ -24,13 +24,13 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
 	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -90,13 +90,13 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
 	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -129,13 +129,13 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
 	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -146,7 +146,7 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.ID != file.UserID {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -169,13 +169,13 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
 	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -186,7 +186,7 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if file.UserID != user.ID {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -206,13 +206,13 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
 	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
@@ -264,13 +264,13 @@ func DownloadFile(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "auth")
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 
 	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		lib.HttpForbiddenHandler(w, r)
 		return
 	}
 

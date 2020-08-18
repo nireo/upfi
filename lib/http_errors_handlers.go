@@ -10,5 +10,15 @@ func HttpNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func HttpForbiddenHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("./templates/forbidden_template.html"))
+	err := tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
 }
