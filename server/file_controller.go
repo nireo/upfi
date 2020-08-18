@@ -38,7 +38,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		err = r.ParseMultipartForm(10 << 20)
 		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			lib.HttpInternalErrorHandler(w, r)
 			return
 		}
 
@@ -62,12 +62,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		dst, err := os.Create(fileDirectory)
 		defer dst.Close()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			lib.HttpInternalErrorHandler(w, r)
 			return
 		}
 
 		if _, err := io.Copy(dst, file); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			lib.HttpInternalErrorHandler(w, r)
 			return
 		}
 
@@ -78,7 +78,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		tmpl := template.Must(template.ParseFiles("./static/upload.html"))
 		err = tmpl.Execute(w, nil)
 		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			lib.HttpInternalErrorHandler(w, r)
 			return
 		}
 	}
@@ -102,7 +102,7 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 
 	var files []models.File
 	if err := db.Model(&user).Related(&files).Error; err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		lib.HttpInternalErrorHandler(w, r)
 		return
 	}
 
@@ -112,8 +112,7 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 		Files:     files,
 	}
 
-	err = tmpl.Execute(w, data)
-	if err != nil {
+	if err = tmpl.Execute(w, data); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -151,9 +150,8 @@ func SingleFileController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
-	err = tmpl.Execute(w, file)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	if err = tmpl.Execute(w, file); err != nil {
+		lib.HttpInternalErrorHandler(w, r)
 		return
 	}
 }
@@ -244,9 +242,8 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 	case http.MethodGet:
 		tmpl := template.Must(template.ParseFiles("./templates/update_file_info_template.html"))
-		err = tmpl.Execute(w, file)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		if err = tmpl.Execute(w, file); err != nil {
+			lib.HttpInternalErrorHandler(w, r)
 			return
 		}
 	default:
