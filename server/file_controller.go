@@ -2,11 +2,13 @@ package server
 
 import (
 	"fmt"
-	"github.com/nireo/upfi/models"
 	"html/template"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"path/filepath"
+
+	"github.com/nireo/upfi/models"
 
 	"github.com/nireo/upfi/lib"
 )
@@ -32,51 +34,54 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = r.ParseMultipartForm(10 << 20)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
+	switch r.Method {
+	case http.MethodPost:
+		err = r.ParseMultipartForm(10 << 20)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 
-	file, handler, err := r.FormFile("file")
-	if err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-	// create file entry to the database
-	newFileEntry := &models.File{
-		Filename:    handler.Filename,
-		UUID:        lib.GenerateUUID(),
-		Description: r.FormValue("description"),
-		Size:        handler.Size,
-		UserID:      user.ID,
-	}
-	db.NewRecord(newFileEntry)
-	db.Create(newFileEntry)
-	defer file.Close()
+		file, handler, err := r.FormFile("file")
+		if err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
+		// create file entry to the database
+		newFileEntry := &models.File{
+			Filename:    handler.Filename,
+			UUID:        lib.GenerateUUID(),
+			Description: r.FormValue("description"),
+			Size:        handler.Size,
+			UserID:      user.ID,
+			Extension:   filepath.Ext(handler.Filename),
+		}
+		defer file.Close()
 
-	newFileName := fmt.Sprintf("*.%s%s", newFileEntry.UUID, filepath.Ext(newFileEntry.Filename))
-	userDirectory := fmt.Sprintf("./files/%s", user.UUID)
-	tempFile, err := ioutil.TempFile(userDirectory, newFileName)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-	defer tempFile.Close()
+		fileDirectory := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
+		dst, err := os.Create(fileDirectory)
+		defer dst.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
+		if _, err := io.Copy(dst, file); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	_, err = tempFile.Write(fileBytes)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
+		db.NewRecord(newFileEntry)
+		db.Create(newFileEntry)
+		http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
+	case http.MethodGet:
+		tmpl := template.Must(template.ParseFiles("./static/upload.html"))
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
-
-	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
 
 func FilesController(w http.ResponseWriter, r *http.Request) {
@@ -185,6 +190,7 @@ func DeleteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	os.Remove("./files/" + user.UUID + "/" + fmt.Sprintf("%s%s", file.UUID, file.Extension))
 	db.Delete(&file)
 	http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 }
@@ -246,4 +252,38 @@ func UpdateFile(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
+}
+
+func DownloadFile(w http.ResponseWriter, r *http.Request) {
+	keys, ok := r.URL.Query()["file"]
+	if !ok || len(keys[0]) < 1 {
+		http.Error(w, "You need to provide file ID", http.StatusBadRequest)
+		return
+	}
+	store := lib.GetStore()
+	session, _ := store.Get(r, "auth")
+
+	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	user, err := models.FindOneUser(&models.User{Username: session.Values["username"].(string)})
+	if err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	file, err := models.FindOneFile(&models.File{UUID: keys[0]})
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	if user.ID != file.UserID {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+	http.ServeFile(w, r, "./files/"+
+		fmt.Sprintf("%s/%s%s", user.UUID, file.UUID, file.Extension))
 }
