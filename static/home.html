@@ -11,7 +11,7 @@
       crossorigin="anonymous"
     />
 
-    <title>Login - upfi</title>
+    <title>Home - upfi</title>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -49,41 +49,42 @@
         </ul>
       </div>
     </nav>
+    <div class="jumbotron">
+      <div class="container">
+        <h2>upfi - file hosting service</h2>
+        <p class="text-muted">
+          A minimal file hosting service to store all your files!
+        </p>
+        <a href="/register" style="text-decoration:none;">
+          <button class="btn btn-info">sign up</button>
+        </a>
+        <a href="/login" style="text-decoration:none;">
+          <button class="btn btn-info">sign in</button>
+        </a>
+      </div>
+    </div>
     <div class="container">
-      <div class="card" style="width: 100%;margin-top: 4rem;">
-        <div class="card-header">
-          Login
+      <div class="row">
+        <div class="col">
+          <h4>a simple interface.</h4>
+          <p class="text-muted">
+            Upfi features a clean and simple interface to manage files.
+            Everything from deleting, updating, creating to downloading files is
+            supported!
+          </p>
         </div>
-        <div class="card-body">
-          <form
-            enctype="multipart/form-data"
-            action="http://localhost:8080/login"
-            method="post"
-          >
-            <div class="form-group">
-              <label for="usernameInput">Username</label>
-              <input
-                name="username"
-                type="text"
-                class="form-control"
-                id="usernameInput"
-                aria-describedby="usernameHelp"
-              />
-            </div>
-            <div class="form-group">
-              <label for="filenameInput">Password</label>
-              <input
-                name="password"
-                type="password"
-                class="form-control"
-                id="passwordInput"
-                aria-describedby="passwordHelp"
-              />
-            </div>
-            <div>
-              <button type="submit" class="btn btn-secondary">Login</button>
-            </div>
-          </form>
+        <div class="col">
+          <h4>open source.</h4>
+          <p class="text-muted">
+            Upfi is fully built with Go, and all of the source files are
+            publicly available on
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/nireo/upfi"
+              >github</a
+            >.
+          </p>
         </div>
       </div>
     </div>
