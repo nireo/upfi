@@ -14,7 +14,7 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">upfi</a>
+      <a class="navbar-brand" href="/">upfi</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -45,12 +45,37 @@
     <div class="container mt-3">
       <h2>File {{.Filename}}</h2>
       <p class="text-muted">{{.Description}}</p>
-      <form
-        method="post"
-        action="http://localhost:8080/download?file={{ .UUID }}"
-      >
-        <button type="submit" class="size-sm btn btn-info">Download</button>
-      </form>
+      <div style="display:flex;">
+        <form method="post" action="/download?file={{ .UUID }}">
+          <button type="submit" class="size-sm btn btn-info">Download</button>
+        </form>
+        <form
+          method="post"
+          action="/delete?file={{ .UUID }}"
+          style="margin-left:0.5rem;"
+        >
+          <button type="submit" class="size-sm btn btn-danger">Delete</button>
+        </form>
+      </div>
+
+      <hr style="margin-top:2rem;margin-bottom:2rem;" />
+      <h4>File information</h4>
+      <table style="width:100%">
+        <tr>
+          <th>Filename</th>
+          <th>Size</th>
+          <th>Extension</th>
+          <th>Created</th>
+          <th>Updated</th>
+        </tr>
+        <tr>
+          <td>{{ .Filename }}</td>
+          <td>{{ .Size }}</td>
+          <td>{{ .Extension }}</td>
+          <td>{{ .CreatedAt }}</td>
+          <td>{{ .UpdatedAt }}</td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>
