@@ -1,70 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-            integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
-            crossorigin="anonymous"
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
     />
     <title>Files - upfi</title>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">upfi</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">upfi</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
-    </button>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/upload">Upload</a>
-            </li>
-        </ul>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto"></ul>
         <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="/files">My files</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/settings">Settings</a>
-            </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">upload</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/files">my files</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/settings">settings</a>
+          </li>
         </ul>
-    </div>
-</nav>
-<div class="container">
-    <h1>{{ .PageTitle }}</h1>
-    <table style="width:100%">
+      </div>
+    </nav>
+    <div class="container">
+      <h1>{{ .PageTitle }}</h1>
+      <table style="width:100%">
         <tr>
-            <th>Filename</th>
-            <th>Size</th>
-            <th>Uploaded</th>
+          <th>Filename</th>
+          <th>Size</th>
+          <th>Uploaded</th>
         </tr>
         {{range .Files}}
-            <tr style="margin-top: 1rem;">
-                <td><a href="/file?file={{ .UUID }}">{{ .Filename }}</a></td>
-                <td>{{ .Size }}</td>
-                <td>{{ .CreatedAt }}</td>
-                <td>
-                    <a href="/update?file={{ .UUID }}">
-                        <button type="submit" class="size-sm btn btn-info">update</button>
-                    </a>
-                </td>
-                <td>
-                    <form method="post" action="http://localhost:8080/delete?file={{ .UUID }}" >
-                        <button type="submit" class="size-sm btn btn-danger">delete</button>
-                    </form>
-                </td>
-            </tr>
+        <tr style="margin-top: 1rem;">
+          <td><a href="/file?file={{ .UUID }}">{{ .Filename }}</a></td>
+          <td>{{ .Size }}</td>
+          <td>{{ .CreatedAt }}</td>
+          <td>
+            <a href="/update?file={{ .UUID }}">
+              <button type="submit" class="size-sm btn btn-info">update</button>
+            </a>
+          </td>
+          <td>
+            <form
+              method="post"
+              action="http://localhost:8080/delete?file={{ .UUID }}"
+            >
+              <button type="submit" class="size-sm btn btn-danger">
+                delete
+              </button>
+            </form>
+          </td>
+        </tr>
         {{end}}
-    </table>
-</div>
-</body>
+      </table>
+    </div>
+  </body>
 </html>

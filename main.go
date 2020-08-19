@@ -35,6 +35,9 @@ func main() {
 	http.HandleFunc("/update", server.UpdateFile)
 	http.HandleFunc("/download", server.DownloadFile)
 
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	// Serve routes
+	http.HandleFunc("/", server.ServeHomePage)
+
+	// http.Handle("/", http.FileServer(http.Dir("./static")))
 	_ = http.ListenAndServe(":8080", nil)
 }
