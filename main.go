@@ -38,6 +38,9 @@ func main() {
 	// Serve routes
 	http.HandleFunc("/", server.ServeHomePage)
 
+	// User routes
+	http.HandleFunc("/settings", server.SettingsPage)
+
 	// http.Handle("/", http.FileServer(http.Dir("./static")))
 	_ = http.ListenAndServe(":8080", nil)
 }
