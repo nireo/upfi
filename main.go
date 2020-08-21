@@ -35,11 +35,12 @@ func main() {
 	http.HandleFunc("/delete", server.DeleteFile)
 	http.HandleFunc("/update", server.UpdateFile)
 
-	// Serve routes
-	http.HandleFunc("/", server.ServeHomePage)
-
 	// User routes
 	http.HandleFunc("/settings", server.SettingsPage)
+	http.HandleFunc("/password", server.UpdatePassword)
+
+	// Serve routes
+	http.HandleFunc("/", server.ServeHomePage)
 
 	// http.Handle("/", http.FileServer(http.Dir("./static")))
 	_ = http.ListenAndServe(":8080", nil)

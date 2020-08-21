@@ -44,12 +44,24 @@
     </nav>
     <div class="container">
       <h1>Settings</h1>
+      <hr style="margin-bottom:2rem;margin-top:2rem;" />
       <form method="post" action="/settings">
         <div class="form-group">
           <label for="username">Username</label>
           <input type="text" class="form-control" id="username" name="username">
         </div>
-        <button class="btn btn-info">Update</button>
+        <button class="btn btn-info" type="submit">Update username</button>
+      </form>
+      <form method="post" action="/password" style="margin-top:2rem;">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <div class="form-group">
+          <label for="newPassword">New password</label>
+          <input type="password" class="form-control" id="newPassword" name="newPassword">
+        </div>
+        <button class="btn btn-info" type="submit">Update password</button>
       </form>
     </div>
   </body>

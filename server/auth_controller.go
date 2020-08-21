@@ -11,12 +11,12 @@ import (
 	"github.com/nireo/upfi/models"
 )
 
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-func checkPasswordHash(password, hash string) bool {
+func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
@@ -35,7 +35,7 @@ func AuthLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !checkPasswordHash(password, user.Password) {
+		if !CheckPasswordHash(password, user.Password) {
 			http.Error(w, "Incorrect credentials", http.StatusForbidden)
 			return
 		}
@@ -73,7 +73,7 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		hash, err := hashPassword(password)
+		hash, err := HashPassword(password)
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
