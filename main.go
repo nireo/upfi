@@ -38,6 +38,7 @@ func main() {
 	// User routes
 	http.HandleFunc("/settings", server.SettingsPage)
 	http.HandleFunc("/password", server.UpdatePassword)
+	http.HandleFunc("/remove", server.DeleteUser)
 
 	// Serve routes
 	http.HandleFunc("/", server.ServeHomePage)
