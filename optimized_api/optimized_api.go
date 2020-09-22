@@ -5,6 +5,7 @@ import (
 	"log"
 	"path/filepath"
 
+	"github.com/buaazp/fasthttprouter"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
@@ -62,16 +63,10 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 }
 
 func SetupOptimizedApi() {
-	requestHandler := func(ctx *fasthttp.RequestCtx) {
-		switch string(ctx.Path()) {
-		case "/upload":
-			UploadFile(ctx)
-		default:
-			NotFoundHandler(ctx)
-		}
-	}
+	router := fasthttprouter.New()
+	router.POST("/upload", UploadFile)
 
-	if err := fasthttp.ListenAndServe("localhost:8080", requestHandler); err != nil {
+	if err := fasthttp.ListenAndServe("localhost:8080", router.Handler); err != nil {
 		log.Fatalf("Error in ListenAndServe %s", err)
 	}
 }
