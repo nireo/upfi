@@ -71,6 +71,49 @@ func Register(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 }
 
+func Login(ctx *fasthttp.RequestCtx) {
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ctx.Error("Content type needs to be multipart", fasthttp.StatusBadRequest)
+		return
+	}
+
+	if len(form.Value["username"]) == 0 || len(form.Value["password"][0]) == 0 {
+		ctx.Error("Both username and password fields must be added", fasthttp.StatusNotFound)
+		return
+	}
+
+	username := form.Value["username"][0]
+	password := form.Value["password"][0]
+
+	// validate the input
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	if !server.CheckPasswordHash(password, user.Password) {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	// create token string
+	token, err := lib.CreateToken(user.Username)
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+
+	// create token cookie
+	var cookie fasthttp.Cookie
+	cookie.SetKey("token")
+	cookie.SetValue(token)
+
+	ctx.Response.Header.SetCookie(&cookie)
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+}
+
 func UploadFile(ctx *fasthttp.RequestCtx) {
 	// get file
 	header, err := ctx.FormFile("file")
