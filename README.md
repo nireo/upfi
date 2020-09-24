@@ -35,6 +35,19 @@ Then just type:
 go run main.go
 ```
 
+## Optimized API (WIP)
+
+There is currently an experimental handler rewrite going on which uses the [fasthttp](https://github.com/valyala/fasthttp) package instead of the default `net/http`. Some features in the handlers are experimental and they are in the middle of being optimized and being more secure. Since it's experimental some of the features might not work!
+
+### Running the optimized api
+
+```
+# Without the api flag the default api value will be 'default', which uses the net/http package
+go run main.go -api=optimized
+```
+
+In the future encrypting files is planned for the optimized api. Also in the future the optimized api might become the new default, but that needs some more integration!
+
 ## Contributions
 
 Anyone can contribute to the project by creating a pull request!
