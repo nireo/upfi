@@ -1,13 +1,30 @@
 package optimized_api
 
 import (
-	"net/http"
+	"html/template"
+	"os"
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/server"
 	"github.com/valyala/fasthttp"
 )
+
+func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
+	tmpl := template.Must(template.ParseFiles("./static/register.html"))
+	if err := tmpl.Execute(ctx, nil); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
+
+func ServeLoginPage(ctx *fasthttp.RequestCtx) {
+	tmpl := template.Must(template.ParseFiles("./static/login.html"))
+	if err := tmpl.Execute(ctx, nil); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
 
 func Register(ctx *fasthttp.RequestCtx) {
 	form, err := ctx.MultipartForm()
