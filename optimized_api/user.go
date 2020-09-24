@@ -55,6 +55,7 @@ func HandleSettingChange(ctx *fasthttp.RequestCtx) {
 	user.Username = newUsername
 
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
+	ctx.Redirect("/settings", fasthttp.StatusMovedPermanently)
 }
 
 func DeleteUser(ctx *fasthttp.RequestCtx) {
@@ -77,8 +78,9 @@ func DeleteUser(ctx *fasthttp.RequestCtx) {
 
 	// remove the tokens
 	ctx.Request.Header.DelAllCookies()
+
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
-	ctx.Write([]byte("Successfully removed all your files!"))
+	ctx.Redirect("/", fasthttp.StatusMovedPermanently)
 }
 
 func UpdatePassword(ctx *fasthttp.RequestCtx) {
@@ -116,5 +118,5 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	db.Save(&user)
 
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
-	ctx.Write([]byte("Successfully changed your password!"))
+	ctx.Redirect("/settings", fasthttp.StatusMovedPermanently)
 }

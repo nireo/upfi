@@ -1,16 +1,40 @@
 package optimized_api
 
 import (
-	"fmt"
+	"html/template"
 
 	"github.com/valyala/fasthttp"
 )
 
 func NotFoundHandler(ctx *fasthttp.RequestCtx) {
-	// prompt the user
-	fmt.Fprintf(ctx, "Cannot: '%s' route: '%s'", ctx.Method(), ctx.RequestURI())
-	ctx.SetContentType("text/plain; charset=utf-8")
-
-	// set not found status
 	ctx.Response.SetStatusCode(fasthttp.StatusNotFound)
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("./templates/not_found_template.html"))
+	if err := tmpl.Execute(ctx, nil); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
+
+func ForbiddenHandler(ctx *fasthttp.RequestCtx) {
+	ctx.Response.SetStatusCode(fasthttp.StatusForbidden)
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("./templates/forbidden_template.html"))
+	if err := tmpl.Execute(ctx, nil); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
+
+func InternalServerErrorHandler(ctx *fasthttp.RequestCtx) {
+	ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("./templates/internal.html"))
+	if err := tmpl.Execute(ctx, nil); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
 }

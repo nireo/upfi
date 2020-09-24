@@ -74,7 +74,23 @@ func Register(ctx *fasthttp.RequestCtx) {
 	db := lib.GetDatabase()
 	db.NewRecord(newUser)
 	db.Create(&newUser)
+
+	// create token string
+	token, err := lib.CreateToken(newUser.Username)
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+
+	// create token cookie
+	var cookie fasthttp.Cookie
+	cookie.SetKey("token")
+	cookie.SetValue(token)
+
+	ctx.Response.Header.SetCookie(&cookie)
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
+
+	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }
 
 func Login(ctx *fasthttp.RequestCtx) {
@@ -118,4 +134,6 @@ func Login(ctx *fasthttp.RequestCtx) {
 
 	ctx.Response.Header.SetCookie(&cookie)
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+
+	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }

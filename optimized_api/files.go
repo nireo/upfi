@@ -64,14 +64,15 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 
 	db.NewRecord(newFileEntry)
 	db.Create(newFileEntry)
+
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
+	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }
 
 func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	// get the user's username which was appended to the request header
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
-	ctx.Response.Header.Set("Content-Type", "text/html")
 
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
@@ -93,6 +94,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	ctx.Response.Header.Set("Content-Type", "text/html")
 	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
 	if err := tmpl.Execute(ctx, file); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
@@ -103,7 +105,6 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
-	ctx.Response.Header.Set("Content-Type", "text/html")
 
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
@@ -120,6 +121,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 		Files:     files,
 	}
 
+	ctx.Response.Header.Set("Content-Type", "text/html")
 	if err := tmpl.Execute(ctx, data); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
@@ -150,7 +152,9 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 
 	os.Remove("./files/" + user.UUID + "/" + fmt.Sprintf("%s%s", file.UUID, file.Extension))
 	db.Delete(&file)
+
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
+	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }
 
 func UpdateFile(ctx *fasthttp.RequestCtx) {
@@ -193,5 +197,7 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	}
 
 	db.Save(&file)
+
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
+	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }
