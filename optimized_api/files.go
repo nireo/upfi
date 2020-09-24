@@ -2,6 +2,7 @@ package optimized_api
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"text/template"
 
@@ -110,4 +111,74 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
 	}
+}
+
+func DeleteFile(ctx *fasthttp.RequestCtx) {
+	username := string(ctx.Request.Header.Peek("username"))
+	db := lib.GetDatabase()
+
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	fileID := ctx.UserValue("file").(string)
+	var file models.File
+	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	if user.ID != file.UserID {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	os.Remove("./files/" + user.UUID + "/" + fmt.Sprintf("%s%s", file.UUID, file.Extension))
+	db.Delete(&file)
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
+}
+
+func UpdateFile(ctx *fasthttp.RequestCtx) {
+	username := string(ctx.Request.Header.Peek("username"))
+	db := lib.GetDatabase()
+
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ctx.Error("Content type needs to be multipart", fasthttp.StatusBadRequest)
+		return
+	}
+
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	fileID := ctx.UserValue("file").(string)
+	var file models.File
+	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	if user.ID != file.UserID {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	title := form.Value["title"][0]
+	description := form.Value["description"][0]
+
+	if description != "" {
+		file.Description = description
+	}
+
+	if title != "" {
+		file.Filename = title
+	}
+
+	db.Save(&file)
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
 }

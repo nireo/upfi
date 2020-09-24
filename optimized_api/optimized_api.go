@@ -34,6 +34,9 @@ func SetupOptimizedApi() {
 	router.GET("/file/:file", middleware.CheckAuthentication(GetSingleFile))
 	router.GET("/files", middleware.CheckAuthentication(GetUserFiles))
 
+	router.PATCH("/file/:file", middleware.CheckAuthentication(UpdateFile))
+	router.DELETE("/file/:file", middleware.CheckAuthentication(DeleteFile))
+
 	// start the http server
 	if err := fasthttp.ListenAndServe("localhost:8080", router.Handler); err != nil {
 		log.Fatalf("Error in ListenAndServe %s", err)

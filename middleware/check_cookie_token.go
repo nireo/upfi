@@ -7,7 +7,7 @@ import (
 
 func CheckAuthentication(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
-		cookie := ctx.Request.Header.Cookie("auth")
+		cookie := ctx.Request.Header.Cookie("token")
 
 		// validate token
 		username, err := lib.ValidateToken(string(cookie))
