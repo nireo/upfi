@@ -25,6 +25,10 @@ func SetupOptimizedApi() {
 	// setup routes
 	router.POST("/upload", UploadFile)
 	router.POST("/register", Register)
+	router.POST("/login", Login)
+
+	router.GET("/login", ServeLoginPage)
+	router.GET("/register", ServeRegisterPage)
 
 	// start the http server
 	if err := fasthttp.ListenAndServe("localhost:8080", router.Handler); err != nil {

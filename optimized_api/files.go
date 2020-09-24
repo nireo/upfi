@@ -3,7 +3,9 @@ package optimized_api
 import (
 	"fmt"
 	"path/filepath"
+	"text/template"
 
+	"github.com/buaazp/fasthttprouter"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
@@ -49,4 +51,36 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	db.NewRecord(newFileEntry)
 	db.Create(newFileEntry)
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
+}
+
+func GetSingleFile(ctx *fasthttp.RequestCtx) {
+	// get the user's username which was appended to the request header
+	username := string(ctx.Request.Header.Peek("username"))
+
+	db := lib.GetDatabase()
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	// the parameter is given by fasthttprouter instead of fasthttp!
+	fileID := ctx.UserValue("file").(string)
+	var file models.File
+	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	// check for file ownership
+	if user.ID != file.UserID {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
+	if err := tmpl.Execute(ctx, file); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
 }
