@@ -25,6 +25,8 @@ func SetupOptimizedApi() {
 
 	// setup routes
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
+	router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))
+
 	router.POST("/register", Register)
 	router.POST("/login", Login)
 	router.GET("/login", ServeLoginPage)
@@ -35,7 +37,7 @@ func SetupOptimizedApi() {
 	router.DELETE("/file/:file", middleware.CheckAuthentication(DeleteFile))
 	router.GET("/settings", middleware.CheckAuthentication(ServeSettingsPage))
 	router.POST("/settings", middleware.CheckAuthentication(HandleSettingChange))
-	router.DELETE("remove", middleware.CheckAuthentication(DeleteUser))
+	router.DELETE("/remove", middleware.CheckAuthentication(DeleteUser))
 	router.PATCH("/password", middleware.CheckAuthentication(UpdatePassword))
 
 	// start the http server

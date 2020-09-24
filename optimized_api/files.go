@@ -12,6 +12,17 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+func ServeUploadPage(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
+	tmpl := template.Must(template.ParseFiles("./static/upload.html"))
+	err := tmpl.Execute(ctx, nil)
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
+
 func UploadFile(ctx *fasthttp.RequestCtx) {
 	// get file
 	header, err := ctx.FormFile("file")
@@ -26,9 +37,11 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	username := string(ctx.Request.Header.Peek("username"))
+
 	db := lib.GetDatabase()
 	// find user
-	user, err := models.FindOneUser(&models.User{Username: form.Value["username"][0]})
+	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
 		ctx.Error("User not found", fasthttp.StatusNotFound)
 		return
