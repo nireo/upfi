@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -29,7 +30,7 @@ func main() {
 	var apiVersion string
 	flag.StringVar(&apiVersion, "api", "default", "Choose the api version")
 
-	if apiVersion == "default" {
+	if apiVersion == "optimized" {
 		// Setup HTTP Handler
 		// Auth routes
 		http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
@@ -53,7 +54,7 @@ func main() {
 
 		// http.Handle("/", http.FileServer(http.Dir("./static")))
 		_ = http.ListenAndServe(":8080", nil)
-	} else if apiVersion == "optimized" {
+	} else {
 		optimized_api.SetupOptimizedApi()
 	}
 }

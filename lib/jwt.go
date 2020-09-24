@@ -15,7 +15,7 @@ type Claims struct {
 }
 
 func CreateToken(username string) (string, error) {
-	expirationTime := time.Now().Add(time.Date)
+	expirationTime := time.Now().Add(time.Hour * 24)
 	claims := &Claims{
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
@@ -55,7 +55,7 @@ func ValidateToken(tokenString string) (string, error) {
 		return "", errors.New("Token is invalid")
 	}
 
-	return claims.Username
+	return claims.Username, nil
 }
 
 // Function that gets called during the initial startup so we can easily load ENV variables once

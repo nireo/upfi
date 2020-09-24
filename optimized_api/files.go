@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/buaazp/fasthttprouter"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/server"
@@ -57,8 +56,9 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	// get the user's username which was appended to the request header
 	username := string(ctx.Request.Header.Peek("username"))
-
 	db := lib.GetDatabase()
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
@@ -89,6 +89,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
+	ctx.Response.Header.Set("Content-Type", "text/html")
 
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {

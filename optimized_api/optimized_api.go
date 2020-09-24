@@ -6,6 +6,7 @@ import (
 	"github.com/buaazp/fasthttprouter"
 	"github.com/jinzhu/gorm"
 	"github.com/nireo/upfi/lib"
+	"github.com/nireo/upfi/middleware"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
 )
@@ -23,12 +24,15 @@ func SetupOptimizedApi() {
 	lib.SetDatabase(db)
 
 	// setup routes
-	router.POST("/upload", UploadFile)
+	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
 	router.POST("/register", Register)
 	router.POST("/login", Login)
 
 	router.GET("/login", ServeLoginPage)
 	router.GET("/register", ServeRegisterPage)
+
+	router.GET("/file/:file", middleware.CheckAuthentication(GetSingleFile))
+	router.GET("/files", middleware.CheckAuthentication(GetUserFiles))
 
 	// start the http server
 	if err := fasthttp.ListenAndServe("localhost:8080", router.Handler); err != nil {

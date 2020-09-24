@@ -11,6 +11,8 @@ import (
 )
 
 func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
 	tmpl := template.Must(template.ParseFiles("./static/register.html"))
 	if err := tmpl.Execute(ctx, nil); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
@@ -19,6 +21,8 @@ func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
 }
 
 func ServeLoginPage(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
 	tmpl := template.Must(template.ParseFiles("./static/login.html"))
 	if err := tmpl.Execute(ctx, nil); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
