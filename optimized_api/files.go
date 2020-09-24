@@ -8,6 +8,7 @@ import (
 	"github.com/buaazp/fasthttprouter"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
+	"github.com/nireo/upfi/server"
 	"github.com/valyala/fasthttp"
 )
 
@@ -80,6 +81,31 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 
 	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
 	if err := tmpl.Execute(ctx, file); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
+
+func GetUserFiles(ctx *fasthttp.RequestCtx) {
+	username := string(ctx.Request.Header.Peek("username"))
+	db := lib.GetDatabase()
+
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	var files []models.File
+	db.Model(&user).Related(&files)
+
+	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
+	data := server.FilePage{
+		PageTitle: "Your files",
+		Files:     files,
+	}
+
+	if err := tmpl.Execute(ctx, data); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
 	}

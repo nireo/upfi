@@ -1,11 +1,14 @@
 package main
 
 import (
+	"flag"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/middleware"
 	"github.com/nireo/upfi/models"
+	"github.com/nireo/upfi/optimized_api"
 
 	"net/http"
 
@@ -22,27 +25,35 @@ func main() {
 	defer db.Close()
 	lib.SetDatabase(db)
 
-	// Setup HTTP Handler
-	// Auth routes
-	http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
-	http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
+	// options are 'optimized' and 'default'
+	var apiVersion string
+	flag.StringVar(&apiVersion, "api", "default", "Choose the api version")
 
-	// File routes
-	http.HandleFunc("/download", server.DownloadFile)
-	http.HandleFunc("/upload", server.UploadFile)
-	http.HandleFunc("/file", server.SingleFileController)
-	http.HandleFunc("/files", server.FilesController)
-	http.HandleFunc("/delete", server.DeleteFile)
-	http.HandleFunc("/update", server.UpdateFile)
+	if apiVersion == "default" {
+		// Setup HTTP Handler
+		// Auth routes
+		http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
+		http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
 
-	// User routes
-	http.HandleFunc("/settings", server.SettingsPage)
-	http.HandleFunc("/password", server.UpdatePassword)
-	http.HandleFunc("/remove", server.DeleteUser)
+		// File routes
+		http.HandleFunc("/download", server.DownloadFile)
+		http.HandleFunc("/upload", server.UploadFile)
+		http.HandleFunc("/file", server.SingleFileController)
+		http.HandleFunc("/files", server.FilesController)
+		http.HandleFunc("/delete", server.DeleteFile)
+		http.HandleFunc("/update", server.UpdateFile)
 
-	// Serve routes
-	http.HandleFunc("/", server.ServeHomePage)
+		// User routes
+		http.HandleFunc("/settings", server.SettingsPage)
+		http.HandleFunc("/password", server.UpdatePassword)
+		http.HandleFunc("/remove", server.DeleteUser)
 
-	// http.Handle("/", http.FileServer(http.Dir("./static")))
-	_ = http.ListenAndServe(":8080", nil)
+		// Serve routes
+		http.HandleFunc("/", server.ServeHomePage)
+
+		// http.Handle("/", http.FileServer(http.Dir("./static")))
+		_ = http.ListenAndServe(":8080", nil)
+	} else if apiVersion == "optimized" {
+		optimized_api.SetupOptimizedApi()
+	}
 }
