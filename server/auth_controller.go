@@ -92,7 +92,6 @@ func AuthRegister(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db.NewRecord(newUser)
 		db.Create(&newUser)
 		http.Redirect(w, r, "http://localhost:8080/login.html", http.StatusMovedPermanently)
 	case http.MethodGet:

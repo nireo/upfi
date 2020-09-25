@@ -3,8 +3,8 @@ package models
 import (
 	"os"
 
-	"github.com/jinzhu/gorm"
 	"github.com/nireo/upfi/lib"
+	"gorm.io/gorm"
 )
 
 type File struct {
@@ -14,7 +14,7 @@ type File struct {
 	Description string
 	Size        int64
 	UserID      uint
-	Extension 	string
+	Extension   string
 }
 
 func (file *File) Serialize() lib.JSON {

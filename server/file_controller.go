@@ -71,7 +71,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db.NewRecord(newFileEntry)
 		db.Create(newFileEntry)
 		http.Redirect(w, r, "http://localhost:8080/files", http.StatusMovedPermanently)
 	case http.MethodGet:
@@ -101,7 +100,7 @@ func FilesController(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var files []models.File
-	if err := db.Model(&user).Related(&files).Error; err != nil {
+	if err := db.Find(&files).Where(&models.File{UserID: user.ID}); err != nil {
 		lib.HttpInternalErrorHandler(w, r)
 		return
 	}

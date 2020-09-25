@@ -3,8 +3,8 @@ package models
 import (
 	"os"
 
-	"github.com/jinzhu/gorm"
 	"github.com/nireo/upfi/lib"
+	"gorm.io/gorm"
 )
 
 type User struct {

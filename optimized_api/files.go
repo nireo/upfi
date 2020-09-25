@@ -62,7 +62,6 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	db.NewRecord(newFileEntry)
 	db.Create(newFileEntry)
 
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
@@ -113,7 +112,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	}
 
 	var files []models.File
-	db.Model(&user).Related(&files)
+	db.Find(&files).Where(&models.File{UserID: user.ID})
 
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	data := server.FilePage{

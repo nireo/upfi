@@ -72,7 +72,6 @@ func Register(ctx *fasthttp.RequestCtx) {
 	}
 
 	db := lib.GetDatabase()
-	db.NewRecord(newUser)
 	db.Create(&newUser)
 
 	// create token string

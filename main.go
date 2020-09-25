@@ -2,27 +2,30 @@ package main
 
 import (
 	"flag"
+	"log"
+	"net/http"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/middleware"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/optimized_api"
-
-	"net/http"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/nireo/upfi/server"
 )
 
 func main() {
 	// Load database
-	db, err := gorm.Open("postgres", "host=localhost port=5432 user=postgres dbname=upfi sslmode=disable")
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN: "host=localhost port=5432 user=postgres dbname=upfi sslmode=disable",
+	}), &gorm.Config{})
+
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+
 	models.MigrateModels(db)
-	defer db.Close()
 	lib.SetDatabase(db)
 
 	// options are 'optimized' and 'default'
