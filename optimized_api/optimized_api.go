@@ -1,6 +1,7 @@
 package optimized_api
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/buaazp/fasthttprouter"
@@ -8,7 +9,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func SetupOptimizedApi() {
+func SetupOptimizedApi(port string) {
 	router := fasthttprouter.New()
 
 	// setup routes
@@ -29,7 +30,7 @@ func SetupOptimizedApi() {
 	router.PATCH("/password", middleware.CheckAuthentication(UpdatePassword))
 
 	// start the http server
-	if err := fasthttp.ListenAndServe("localhost:8080", router.Handler); err != nil {
+	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {
 		log.Fatalf("Error in ListenAndServe %s", err)
 	}
 }
