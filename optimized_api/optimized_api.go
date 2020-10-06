@@ -28,6 +28,7 @@ func SetupOptimizedApi(port string) {
 	router.POST("/settings", middleware.CheckAuthentication(HandleSettingChange))
 	router.DELETE("/remove", middleware.CheckAuthentication(DeleteUser))
 	router.PATCH("/password", middleware.CheckAuthentication(UpdatePassword))
+	router.GET("/paste", middleware.CheckAuthentication(ServeCreatePage))
 
 	// start the http server
 	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {
