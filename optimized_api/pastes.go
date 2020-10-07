@@ -51,3 +51,31 @@ func CreatePaste(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 	ctx.Redirect("/pastes", fasthttp.StatusMovedPermanently)
 }
+
+func DeletePaste(ctx *fasthttp.RequestCtx) {
+	username := string(ctx.Request.Header.Peek("username"))
+	db := lib.GetDatabase()
+
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	pasteID := ctx.UserValue("paste").(string)
+	var paste models.Paste
+	if err := db.Where(&models.Paste{UUID: pasteID}).First(&paste).Error; err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	if paste.UserID != user.ID {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	db.Delete(&paste)
+
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
+	ctx.Redirect("/pastes", fasthttp.StatusMovedPermanently)
+}
