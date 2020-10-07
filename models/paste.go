@@ -12,6 +12,7 @@ type Paste struct {
 	Title       string
 	Description string
 	UUID        string
+	Private     bool
 }
 
 func (paste *Paste) Serialize() lib.JSON {

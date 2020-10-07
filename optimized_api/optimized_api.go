@@ -31,6 +31,7 @@ func SetupOptimizedApi(port string) {
 	router.GET("/paste", middleware.CheckAuthentication(ServeCreatePage))
 	router.POST("/paste", middleware.CheckAuthentication(CreatePaste))
 	router.GET("/pastes", middleware.CheckAuthentication(DeletePaste))
+	router.PATCH("/paste", middleware.CheckAuthentication(UpdatePastePrivacy))
 
 	// start the http server
 	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {
