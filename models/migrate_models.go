@@ -3,5 +3,7 @@ package models
 import "gorm.io/gorm"
 
 func MigrateModels(db *gorm.DB) {
-	db.AutoMigrate(&User{}, &File{})
+	if err := db.AutoMigrate(&User{}, &File{}); err != nil {
+		panic(err)
+	}
 }

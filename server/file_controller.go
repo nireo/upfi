@@ -56,6 +56,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 			UserID:      user.ID,
 			Extension:   filepath.Ext(handler.Filename),
 		}
+
 		defer file.Close()
 
 		fileDirectory := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)

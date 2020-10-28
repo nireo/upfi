@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-func HttpNotFoundHandler(w http.ResponseWriter, r *http.Request) {
+func HttpNotFoundHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl := template.Must(template.ParseFiles("./templates/not_found_template.html"))
 	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -13,7 +13,7 @@ func HttpNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HttpForbiddenHandler(w http.ResponseWriter, r *http.Request) {
+func HttpForbiddenHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl := template.Must(template.ParseFiles("./templates/forbidden_template.html"))
 	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -21,7 +21,7 @@ func HttpForbiddenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HttpInternalErrorHandler(w http.ResponseWriter, r *http.Request) {
+func HttpInternalErrorHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl := template.Must(template.ParseFiles("./templates/internal.html"))
 	if err := tmpl.Execute(w, nil); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
