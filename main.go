@@ -20,27 +20,30 @@ import (
 )
 
 func main() {
-	// load env
+	// Load all of the environment variables listed in the .env file, in the project root directory
 	if err := godotenv.Load(); err != nil {
+		// Stop the execution, since we need all of the environment varialbes
 		log.Fatal("Could not load the env file")
 	}
 
+	// Store most of the enviroment varialbes into normal variables, so that the database connection
+	// line becomes more easier to read.
 	user := os.Getenv("db_username")
 	dbPort := os.Getenv("db_port")
 	host := os.Getenv("db_host")
 	dbName := os.Getenv("db_name")
-
 	serverPort := os.Getenv("port")
 
-	// Load database
+	// Connect to the PostgreSQL database using gorm; which returns a pointer to the database, which we
+	// store in a utility file.
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN: fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", host, dbPort, user, dbName),
 	}), &gorm.Config{})
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Execute some setup functions which we need
 	models.MigrateModels(db)
 	lib.SetDatabase(db)
 
@@ -49,12 +52,12 @@ func main() {
 	flag.StringVar(&apiVersion, "api", "default", "Choose the api version")
 
 	if apiVersion == "optimized" {
-		// Setup HTTP Handler
-		// Auth routes
+		// Setup a default HTTP handler without using the fasthttp version
+		// Auth router routes
 		http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
 		http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
 
-		// File routes
+		// File router routes
 		http.HandleFunc("/download", server.DownloadFile)
 		http.HandleFunc("/upload", server.UploadFile)
 		http.HandleFunc("/file", server.SingleFileController)
@@ -62,19 +65,22 @@ func main() {
 		http.HandleFunc("/delete", server.DeleteFile)
 		http.HandleFunc("/update", server.UpdateFile)
 
-		// User routes
+		// User router routes
 		http.HandleFunc("/settings", server.SettingsPage)
 		http.HandleFunc("/password", server.UpdatePassword)
 		http.HandleFunc("/remove", server.DeleteUser)
 
-		// Serve routes
+		// Specific html serve routes
 		http.HandleFunc("/", server.ServeHomePage)
 
 		// http.Handle("/", http.FileServer(http.Dir("./static")))
+		// Start a HTTP server on the port which is given in the environment variables
 		if err := http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil); err != nil {
 			log.Fatal("Error in http.ListenAndServe")
 		}
-	} else {
-		optimized_api.SetupOptimizedApi(serverPort)
+		return
 	}
+
+	// Use the optimized version of the api, which uses the fasthttp package to improve performance
+	optimized_api.SetupOptimizedApi(serverPort)
 }

@@ -12,10 +12,8 @@ import (
 func SetupOptimizedApi(port string) {
 	router := fasthttprouter.New()
 
-	// setup routes
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
 	router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))
-
 	router.POST("/register", Register)
 	router.POST("/login", Login)
 	router.GET("/login", ServeLoginPage)
@@ -33,7 +31,7 @@ func SetupOptimizedApi(port string) {
 	router.GET("/pastes", middleware.CheckAuthentication(DeletePaste))
 	router.PATCH("/paste", middleware.CheckAuthentication(UpdatePastePrivacy))
 
-	// start the http server
+	// Start a HTTP server listening on the port from the environment variable
 	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {
 		log.Fatalf("Error in ListenAndServe %s", err)
 	}
