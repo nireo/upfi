@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Paste is a database struct, which also holds all the properties of gorm.Model
 type Paste struct {
 	gorm.Model
 	UserID      uint
@@ -15,6 +16,7 @@ type Paste struct {
 	Private     bool
 }
 
+// Serialize serializes a paste's data into json format
 func (paste *Paste) Serialize() lib.JSON {
 	return lib.JSON{
 		"uuid":        paste.UUID,
@@ -24,11 +26,14 @@ func (paste *Paste) Serialize() lib.JSON {
 	}
 }
 
+// FindOnePaste takes a condition argument and returns a pointer to a paste,
+// if it finds one matching the condition.
 func FindOnePaste(condition interface{}) (*Paste, error) {
 	db := lib.GetDatabase()
 	var paste Paste
 	if err := db.Where(condition).First(paste).Error; err != nil {
-		return &paste, err
+		// Paste not found so return a null pointer.
+		return nil, err
 	}
 
 	return &paste, nil

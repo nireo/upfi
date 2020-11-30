@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// File is a database struct, which also holds properties of gorm.Model
 type File struct {
 	gorm.Model
 	Filename    string
@@ -17,6 +18,7 @@ type File struct {
 	Extension   string
 }
 
+// Serialize serializes the user's data into json format
 func (file *File) Serialize() lib.JSON {
 	return lib.JSON{
 		"filename":    file.Filename,
@@ -26,7 +28,7 @@ func (file *File) Serialize() lib.JSON {
 	}
 }
 
-// add a method to delete since we need this in the html template
+// Delete removes a given file and it's database entry
 func (file *File) Delete(userId string) error {
 	db := lib.GetDatabase()
 
@@ -39,12 +41,14 @@ func (file *File) Delete(userId string) error {
 	return nil
 }
 
+// FindOneFile takes a interface{} as an arguement and returns a pointer to a file,
+// if it is found.
 func FindOneFile(condition interface{}) (*File, error) {
 	db := lib.GetDatabase()
-
 	var file File
 	if err := db.Where(condition).First(&file).Error; err != nil {
-		return &file, err
+		// Not found so returns a null pointer.
+		return nil, err
 	}
 
 	return &file, nil

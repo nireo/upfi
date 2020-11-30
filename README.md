@@ -49,18 +49,9 @@ Or just to the run the service:
 go run main.go
 ```
 
-## Optimized API (WIP)
+## Optimized API
 
-There is currently an experimental handler rewrite going on which uses the [fasthttp](https://github.com/valyala/fasthttp) package instead of the default `net/http`. Some features in the handlers are experimental and they are in the middle of being optimized and being more secure. Since it's experimental some of the features might not work!
-
-### Running the optimized api
-
-```
-# Without the api flag the default api value will be 'default', which uses the net/http package
-go run main.go -api=optimized
-```
-
-In the future encrypting files is planned for the optimized api. Also in the future the optimized api might become the new default, but that needs some more integration!
+The optimized api is the main version api currenly, which is used for the application. The folder `server` contains a older version of the api code, which uses the `net/http` packages, but the optimized api uses `fasthttp`, which leads to a massive performace increase. There is currently no way of running the old api since, it is quite deprecated and doesn't have some of the newer features. It will most likely be completely removed in the future. Also some of the other folders contain code that the old api used, so it's not removed yet.
 
 ## Contributions
 
