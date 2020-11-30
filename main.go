@@ -47,40 +47,7 @@ func main() {
 	models.MigrateModels(db)
 	lib.SetDatabase(db)
 
-	// options are 'optimized' and 'default'
-	var apiVersion string
-	flag.StringVar(&apiVersion, "api", "default", "Choose the api version")
-
-	if apiVersion == "optimized" {
-		// Setup a default HTTP handler without using the fasthttp version
-		// Auth router routes
-		http.HandleFunc("/register", middleware.Chain(server.AuthRegister, middleware.LogRequest()))
-		http.HandleFunc("/login", middleware.Chain(server.AuthLogin, middleware.LogRequest()))
-
-		// File router routes
-		http.HandleFunc("/download", server.DownloadFile)
-		http.HandleFunc("/upload", server.UploadFile)
-		http.HandleFunc("/file", server.SingleFileController)
-		http.HandleFunc("/files", server.FilesController)
-		http.HandleFunc("/delete", server.DeleteFile)
-		http.HandleFunc("/update", server.UpdateFile)
-
-		// User router routes
-		http.HandleFunc("/settings", server.SettingsPage)
-		http.HandleFunc("/password", server.UpdatePassword)
-		http.HandleFunc("/remove", server.DeleteUser)
-
-		// Specific html serve routes
-		http.HandleFunc("/", server.ServeHomePage)
-
-		// http.Handle("/", http.FileServer(http.Dir("./static")))
-		// Start a HTTP server on the port which is given in the environment variables
-		if err := http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil); err != nil {
-			log.Fatal("Error in http.ListenAndServe")
-		}
-		return
-	}
-
 	// Use the optimized version of the api, which uses the fasthttp package to improve performance
+	// Is its own function, since before there was a older implementation which used net/http.
 	optimized_api.SetupOptimizedApi(serverPort)
 }
