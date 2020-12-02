@@ -8,7 +8,6 @@ import (
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
-	"github.com/nireo/upfi/server"
 	"github.com/valyala/fasthttp"
 )
 
@@ -114,6 +113,11 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	}
 }
 
+type FilePage struct {
+	PageTitle string
+	Files     []models.File
+}
+
 // GetUserFiles returns all the files that are related to the username which is requesting this
 // handler. Then handler finds all the related files and constructs a template, which the user
 // then can view as html content.
@@ -135,7 +139,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	// construct a struct which contains the data we will give to the html template.
-	data := server.FilePage{
+	data := FilePage{
 		PageTitle: "Your files",
 		Files:     files,
 	}

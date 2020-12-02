@@ -1,22 +1,16 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/lib"
-	"github.com/nireo/upfi/middleware"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/optimized_api"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	"github.com/nireo/upfi/server"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {

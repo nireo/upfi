@@ -5,9 +5,8 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/nireo/booru/lib"
+	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
-	"github.com/nireo/upfi/server"
 	"github.com/valyala/fasthttp"
 )
 
@@ -146,14 +145,14 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	newPassword := form.Value["newPassword"][0]
 
 	// Check that the current password in the form matches the one on the user model.
-	if !server.CheckPasswordHash(currentPassword, user.Password) {
+	if !lib.CheckPasswordHash(currentPassword, user.Password) {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
 		return
 	}
 
 	// Since all the checking is valid, we hash the new password and the update the password fields on the
 	// database entry.
-	newHashedPassword, err := server.HashPassword(newPassword)
+	newHashedPassword, err := lib.HashPassword(newPassword)
 	if err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return

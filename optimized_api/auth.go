@@ -6,7 +6,6 @@ import (
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
-	"github.com/nireo/upfi/server"
 	"github.com/valyala/fasthttp"
 )
 
@@ -65,7 +64,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Hash the password of the user using bcrypt.
-	hash, err := server.HashPassword(password)
+	hash, err := lib.HashPassword(password)
 	if err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
@@ -132,7 +131,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Compare the hash on the database model to the hash of the given password.
-	if !server.CheckPasswordHash(password, user.Password) {
+	if !lib.CheckPasswordHash(password, user.Password) {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
 		return
 	}
