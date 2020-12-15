@@ -52,6 +52,12 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	// Check that the user's master passwords is correct.
+	if !lib.CheckPasswordHash(form.Value["master"][0], user.FileEncryptionMaster) {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
 	// Construct a database entry
 	newFileEntry := &models.File{
 		Filename:    header.Filename,

@@ -10,10 +10,11 @@ import (
 // User is a database struct, which also holds all the properties of gorm.Model
 type User struct {
 	gorm.Model
-	Username string
-	Password string
-	UUID     string
-	Files    []File
+	Username             string // Username used to login.
+	Password             string // Password to see the files.
+	UUID                 string // Unique ID to identify a user.
+	FileEncryptionMaster string // A password which holds the passphrase with which files are encrypted.
+	Files                []File // A relation to files, which hold a UserID which refers to this model.
 }
 
 // Serialize serializes a given user's data into json format

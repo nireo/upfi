@@ -57,6 +57,11 @@ func Register(ctx *fasthttp.RequestCtx) {
 	username := form.Value["username"][0]
 	password := form.Value["password"][0]
 
+	// The masterPass is the file encryption master password, which is used to encrypt all the files.
+	// It's checked during uploading and downloading files. Also it can be same as the normal password,
+	// but this isn't as secure as using different passwords.
+	masterPass := form.Value["master"][0]
+
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.
 	if _, err := models.FindOneUser(&models.User{Username: username}); err != nil {
 		ctx.Error("User already exists with that username", fasthttp.StatusConflict)
@@ -64,7 +69,15 @@ func Register(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Hash the password of the user using bcrypt.
-	hash, err := lib.HashPassword(password)
+	passwordHash, err := lib.HashPassword(password)
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+
+	// Hash the master password using the same hashing as the normal password, so that we can easily
+	// check the validity of the password.
+	masterHash, err := lib.HashPassword(masterPass)
 	if err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
@@ -72,9 +85,10 @@ func Register(ctx *fasthttp.RequestCtx) {
 
 	// Create the database entry for the user, which contains the username, password and a newly generated unique id
 	newUser := models.User{
-		Username: username,
-		Password: hash,
-		UUID:     lib.GenerateUUID(),
+		Username:             username,
+		Password:             passwordHash,
+		FileEncryptionMaster: masterHash,
+		UUID:                 lib.GenerateUUID(),
 	}
 
 	// Use that unique id to create a folder in the ./files directory that in the future will contain all of the
