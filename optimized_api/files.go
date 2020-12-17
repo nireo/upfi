@@ -1,11 +1,14 @@
 package optimized_api
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"text/template"
 
+	"github.com/nireo/upfi/crypt"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
@@ -69,14 +72,32 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Save the new file to the user's own file folder.
-	fileDirectory := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
-	if err := fasthttp.SaveMultipartFile(header, fileDirectory); err != nil {
+	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
+	/*
+		if err := fasthttp.SaveMultipartFile(header, path); err != nil {
+			InternalServerErrorHandler(ctx)
+			return
+		}
+	*/
+
+	multipartFile, err := header.Open()
+	if err != nil {
+		InternalServerErrorHandler(ctx)
+		return
+	}
+
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, multipartFile); err != nil {
+		InternalServerErrorHandler(ctx)
+		return
+	}
+
+	if err := crypt.EncryptToDst(path, buf.Bytes(), form.Value["master"][0]); err != nil {
 		InternalServerErrorHandler(ctx)
 		return
 	}
 
 	db.Create(newFileEntry)
-
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }

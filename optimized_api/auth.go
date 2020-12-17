@@ -63,7 +63,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	masterPass := form.Value["master"][0]
 
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.
-	if _, err := models.FindOneUser(&models.User{Username: username}); err != nil {
+	if _, err := models.FindOneUser(&models.User{Username: username}); err == nil {
 		ctx.Error("User already exists with that username", fasthttp.StatusConflict)
 		return
 	}
