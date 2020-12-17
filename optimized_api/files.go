@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -71,35 +72,74 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 		Extension:   filepath.Ext(header.Filename),
 	}
 
-	// Save the new file to the user's own file folder.
+	// Define a path, where the file should be stored. Even though we encrypt the file, we
+	// still want to keep the extension, since windows for example does not work without proper file
+	// types.
 	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
-	/*
-		if err := fasthttp.SaveMultipartFile(header, path); err != nil {
-			InternalServerErrorHandler(ctx)
-			return
-		}
-	*/
 
+	// Read the file from the header. This is done because we need *multipart.File, which implements
+	// io.Reader. This is needed to read the bytes in the file.
 	multipartFile, err := header.Open()
 	if err != nil {
 		InternalServerErrorHandler(ctx)
 		return
 	}
 
+	// Read the bytes of the file into a buffer.
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, multipartFile); err != nil {
 		InternalServerErrorHandler(ctx)
 		return
 	}
 
+	// Encrypt the data of the file using AESCipher and store it into the before defined path.
 	if err := crypt.EncryptToDst(path, buf.Bytes(), form.Value["master"][0]); err != nil {
 		InternalServerErrorHandler(ctx)
 		return
 	}
 
+	// Read the mimetype so that we can set the content type properly
+	// Create a buffer to store the header of the file in
+	fileHeader := make([]byte, 512)
+	// Copy the headers into the FileHeader buffer
+	if _, err := multipartFile.Read(fileHeader); err != nil {
+		InternalServerErrorHandler(ctx)
+		return
+	}
+
+	newFileEntry.MIME = http.DetectContentType(fileHeader)
+
 	db.Create(newFileEntry)
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
+}
+
+func DownloadFile(ctx *fasthttp.RequestCtx) {
+	username := string(ctx.Request.Header.Peek("username"))
+	db := lib.GetDatabase()
+
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		NotFoundHandler(ctx)
+		return
+	}
+
+	fileID := ctx.UserValue("file").(string)
+	var file models.File
+	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
+		NotFoundHandler(ctx)
+		return
+	}
+
+	// Check that the user owns the file.
+	if user.ID != file.UserID {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, file.UUID, file.Extension)
+	ctx.Response.Header.Set("Content-Type", file.MIME)
+	ctx.Response.SendFile(path)
 }
 
 // GetSingleFile returns the database entry, which contains data about a file to the user. The user

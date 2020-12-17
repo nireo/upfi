@@ -16,6 +16,7 @@ type File struct {
 	Size        int64
 	UserID      uint
 	Extension   string
+	MIME        string
 }
 
 // Serialize serializes the user's data into json format
