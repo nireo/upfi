@@ -140,6 +140,11 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if len(form.Value["password"]) == 0 || len(form.Value["newPassword"]) == 0 {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		return
+	}
+
 	// Take the current and new password from the request and do some checking on them.
 	currentPassword := form.Value["password"][0]
 	newPassword := form.Value["newPassword"][0]

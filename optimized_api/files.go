@@ -56,6 +56,11 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	if len(form.Value["master"]) == 0 {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		return
+	}
+
 	// Check that the user's master passwords is correct.
 	if !lib.CheckPasswordHash(form.Value["master"][0], user.FileEncryptionMaster) {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
@@ -292,6 +297,13 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	// Check that the user owns the file
 	if user.ID != file.UserID {
 		ForbiddenHandler(ctx)
+		return
+	}
+
+	// Check that the input fields are included, because without this check there will be a
+	// index out of bounds error, if any of the fields are missing.
+	if len(form.Value["title"]) == 0 || len(form.Value["description"]) == 0 {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
 		return
 	}
 

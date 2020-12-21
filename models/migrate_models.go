@@ -9,7 +9,7 @@ import (
 // MigrateModels gets run in the main function and it migrates all of the database models
 // to the database. This gets run everytime the service is restarted.
 func MigrateModels(db *gorm.DB) {
-	if err := db.AutoMigrate(&User{}, &File{}, &Paste{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &File{}); err != nil {
 		log.Fatal(err)
 	}
 }

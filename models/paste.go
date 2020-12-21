@@ -13,7 +13,7 @@ type Paste struct {
 	Title       string
 	Description string
 	UUID        string
-	Private     bool
+	Private     bool // If the private flag is provided, the paste is encrypted and also
 }
 
 // Serialize serializes a paste's data into json format
