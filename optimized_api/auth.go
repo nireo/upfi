@@ -140,7 +140,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 	// Check that a user with the given username actually exists.
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ErrorPageHandler(ctx, NotFoundErrorPage)
 		return
 	}
 

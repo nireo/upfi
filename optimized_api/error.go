@@ -2,6 +2,7 @@ package optimized_api
 
 import "github.com/valyala/fasthttp"
 
+// Define the fields that are on the error site.
 type ErrorPageContent struct {
 	StatusCode  int
 	MainMessage string
