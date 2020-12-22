@@ -26,7 +26,7 @@ func ServeSettingsPage(ctx *fasthttp.RequestCtx) {
 	// Find the user from the database, so that we can display the user's current settings.
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ErrorPageHandler(ctx, NotFoundErrorPage)
 		return
 	}
 
@@ -50,27 +50,27 @@ func HandleSettingChange(ctx *fasthttp.RequestCtx) {
 	// save to changes to the database.
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ErrorPageHandler(ctx, NotFoundErrorPage)
 		return
 	}
 
 	// Since all upfi forms are handeled using multipart forms, we need to parse the values
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
 	// Check if the user has decided to update their username
 	newUsername := form.Value["username"][0]
 	if newUsername == "" {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		ErrorPageHandler(ctx, BadRequestErrorPage)
 		return
 	}
 
 	// Check that there are no conflicts with an existing user
 	if err := db.Where(&models.User{Username: newUsername}).Error; err == nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusConflict), fasthttp.StatusConflict)
+		ErrorPageHandler(ctx, ConflictErrorPage)
 		return
 	}
 
@@ -95,13 +95,13 @@ func DeleteUser(ctx *fasthttp.RequestCtx) {
 	db := lib.GetDatabase()
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ErrorPageHandler(ctx, NotFoundErrorPage)
 		return
 	}
 
 	// Remove the hole directory we created at registeration.
 	if err := os.Remove(fmt.Sprintf("./files/%s", user.UUID)); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
@@ -128,7 +128,7 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	// update the user model with the new hashed password
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ErrorPageHandler(ctx, NotFoundErrorPage)
 		return
 	}
 
@@ -136,12 +136,12 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	// to this handler.
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
 	if len(form.Value["password"]) == 0 || len(form.Value["newPassword"]) == 0 {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		ErrorPageHandler(ctx, BadRequestErrorPage)
 		return
 	}
 
@@ -151,7 +151,7 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 
 	// Check that the current password in the form matches the one on the user model.
 	if !lib.CheckPasswordHash(currentPassword, user.Password) {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		ErrorPageHandler(ctx, ForbiddenErrorPage)
 		return
 	}
 
@@ -159,7 +159,7 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	// database entry.
 	newHashedPassword, err := lib.HashPassword(newPassword)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 	user.Password = newHashedPassword

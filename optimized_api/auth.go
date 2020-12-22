@@ -42,14 +42,14 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// Parse the multipart form
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		ctx.Error("Content type needs to be multipart", fasthttp.StatusBadRequest)
+		ErrorPageHandler(ctx, BadRequestErrorPage)
 		return
 	}
 
 	// Check that the username and the password fields are not empty. If they are empty, return the
 	// user with a bad request status.
-	if len(form.Value["username"]) == 0 || len(form.Value["password"][0]) == 0 {
-		ctx.Error("Both username and password fields must be added", fasthttp.StatusBadRequest)
+	if len(form.Value["username"]) == 0 || len(form.Value["password"][0]) == 0 || len(form.Value["master"]) == 0 {
+		ErrorPageHandler(ctx, BadRequestErrorPage)
 		return
 	}
 
@@ -64,14 +64,14 @@ func Register(ctx *fasthttp.RequestCtx) {
 
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.
 	if _, err := models.FindOneUser(&models.User{Username: username}); err == nil {
-		ctx.Error("User already exists with that username", fasthttp.StatusConflict)
+		ErrorPageHandler(ctx, ConflictErrorPage)
 		return
 	}
 
 	// Hash the password of the user using bcrypt.
 	passwordHash, err := lib.HashPassword(password)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
@@ -79,7 +79,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// check the validity of the password.
 	masterHash, err := lib.HashPassword(masterPass)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
@@ -95,7 +95,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// user's files.
 	err = os.Mkdir("./files/"+newUser.UUID, os.ModePerm)
 	if err != nil {
-		ctx.Error("Failed user directory creation", fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
@@ -106,7 +106,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// Create a new authentication token for the user so that he/she can use authenticated routes.
 	token, err := lib.CreateToken(newUser.Username)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 
@@ -129,7 +129,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 	// Parse the multipart form
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		ctx.Error("Content type needs to be multipart", fasthttp.StatusBadRequest)
+		ErrorPageHandler(ctx, BadRequestErrorPage)
 		return
 	}
 
@@ -140,20 +140,21 @@ func Login(ctx *fasthttp.RequestCtx) {
 	// Check that a user with the given username actually exists.
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		// Return a forbiden, since we don't want to tell another user, if some user has an account.
+		ErrorPageHandler(ctx, ForbiddenErrorPage)
 		return
 	}
 
 	// Compare the hash on the database model to the hash of the given password.
 	if !lib.CheckPasswordHash(password, user.Password) {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		ErrorPageHandler(ctx, ForbiddenErrorPage)
 		return
 	}
 
 	// Create a token for the user, with which the user can use different authenticated routes
 	token, err := lib.CreateToken(user.Username)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ErrorPageHandler(ctx, InternalServerErrorPage)
 		return
 	}
 

@@ -33,4 +33,13 @@ var (
 		MainMessage: fasthttp.StatusMessage(fasthttp.StatusForbidden),
 		Description: "You're not allowed to view the content on this page.",
 	}
+
+	ConflictErrorPage = ErrorPageContent{
+		StatusCode:  fasthttp.StatusConflict,
+		MainMessage: fasthttp.StatusMessage(fasthttp.StatusConflict),
+
+		// This isn't really a 'common' description, but in the case of this application
+		// the conflict error only happens during registration.
+		Description: "The username is already taken.",
+	}
 )
