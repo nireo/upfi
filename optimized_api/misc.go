@@ -54,3 +54,19 @@ func InternalServerErrorHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 }
+
+// InternalServerErrorHandler is a http handler which takes a request context as input, and uses the context, to
+// return a Internal Server Error page using a html template.
+func BadRequestHandler(ctx *fasthttp.RequestCtx) {
+	// Set the right status code
+	ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+	// Set the right content type, so the html template can be properly viewed.
+	ctx.Response.Header.Set("Content-Type", "text/html")
+
+	// Execute a html file as a template and write that template, using the request context.
+	tmpl := template.Must(template.ParseFiles("./templates/bad_request.html"))
+	if err := tmpl.Execute(ctx, nil); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+}
