@@ -208,7 +208,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 
 	// Find all file models which are related to the user in the database.
 	var files []models.File
-	db.Find(&files).Where(&models.File{UserID: user.ID})
+	db.Where(&models.File{UserID: user.ID}).Find(&files)
 
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	// construct a struct which contains the data we will give to the html template.
