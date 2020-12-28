@@ -9,6 +9,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// SetupOptimizedApi starts a HTTP listener on a given port with all the routes in the program.
 func SetupOptimizedApi(port string) {
 	// Create a new instance of a router. (Not really necessary, because we can route ourselves, but
 	// this way the implementation is cleaner.)
@@ -16,10 +17,10 @@ func SetupOptimizedApi(port string) {
 
 	// Setup all the endpoints and add the CheckAuthentication middleware to protected routes,
 	// in which we need the user's username.
-	router.POST("/register", Register)
-	router.POST("/login", Login)
-	router.GET("/login", ServeLoginPage)
-	router.GET("/register", ServeRegisterPage)
+	router.POST("/register", middleware.TinyLogger(Register))
+	router.POST("/login", middleware.TinyLogger(Login))
+	router.GET("/login", middleware.FullLogger(ServeLoginPage))
+	router.GET("/register", middleware.TinyLogger(ServeRegisterPage))
 
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
 	router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))
@@ -39,7 +40,8 @@ func SetupOptimizedApi(port string) {
 |  |  /  |_> >  |  |  |
 |____/|   __/|__|  |__|
       |__|             
-Currently running port %s\n`, port)
+Currently running port %s`, port)
+	fmt.Println()
 
 	// Start a HTTP server listening on the port from the environment variable
 	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {
