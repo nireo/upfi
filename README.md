@@ -2,6 +2,10 @@
 
 > upfi is a minimal version of google drive.
 
+## Goal
+
+The goal of the project is to create an easy to setup file hosting service. The idea is that anyone with a linux computer can setup a upfi-instance!
+
 ## Setup
 
 Upfi is built with golang, so you will need to install it. Also upfi has a few go dependencies. These all are downloaded with the `Makefile` when you run make.
@@ -48,10 +52,6 @@ Or just to the run the service:
 ```
 go run main.go
 ```
-
-## Optimized API
-
-The optimized api is the main version api currenly, which is used for the application. The folder `server` contains a older version of the api code, which uses the `net/http` packages, but the optimized api uses `fasthttp`, which leads to a massive performace increase. There is currently no way of running the old api since, it is quite deprecated and doesn't have some of the newer features. It will most likely be completely removed in the future. Also some of the other folders contain code that the old api used, so it's not removed yet.
 
 ## Contributions
 
