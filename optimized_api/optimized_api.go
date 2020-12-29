@@ -19,8 +19,9 @@ func SetupOptimizedApi(port string) {
 	// in which we need the user's username.
 	router.POST("/register", middleware.TinyLogger(Register))
 	router.POST("/login", middleware.TinyLogger(Login))
-	router.GET("/login", middleware.FullLogger(ServeLoginPage))
+	router.GET("/login", middleware.TinyLogger(ServeLoginPage))
 	router.GET("/register", middleware.TinyLogger(ServeRegisterPage))
+	router.GET("/", middleware.TinyLogger(ServeHomePage))
 
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
 	router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))

@@ -30,26 +30,7 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto"></ul>
-        <ul class="navbar-nav">
-          {{ if .Authenticated }}
-          <li class="nav-item">
-            <a class="nav-link" href="/upload">upload</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/files">my files</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/settings">settings</a>
-          </li>
-          {{ else }}
-          <li class="nav-item">
-            <a class="nav-link" href="/register">register</a>
-          </li>
-          <li>
-            <a class="nav-link" href="/login">login</a>
-          </li>
-          {{end}}
-        </ul>
+        <ul class="navbar-nav"></ul>
       </div>
     </nav>
     <div class="jumbotron">
@@ -89,6 +70,16 @@
             >.
           </p>
         </div>
+      </div>
+      <div class="row" style="margin-top: 3rem">
+        <div class="col">
+          <h4>Easy to setup.</h4>
+          <p class="text-muted">
+            There are instructions on the github so that deployment is as easy
+            as possible. Anyone can do it!
+          </p>
+        </div>
+        <div class="col"></div>
       </div>
     </div>
   </body>

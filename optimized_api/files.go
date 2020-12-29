@@ -3,16 +3,15 @@ package optimized_api
 import (
 	"bytes"
 	"fmt"
+	"github.com/nireo/upfi/crypt"
+	"github.com/nireo/upfi/lib"
+	"github.com/nireo/upfi/models"
+	"github.com/valyala/fasthttp"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"text/template"
-
-	"github.com/nireo/upfi/crypt"
-	"github.com/nireo/upfi/lib"
-	"github.com/nireo/upfi/models"
-	"github.com/valyala/fasthttp"
 )
 
 // ServeUploadPage serves the requester a upload form, in which the user can upload files to their account.
@@ -293,9 +292,15 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	title := form.Value["title"][0]
 	description := form.Value["description"][0]
 
+	// The description can be empty, but the title cannot
+	if title == "" {
+		ErrorPageHandler(ctx, BadRequestErrorPage)
+		return
+	}
+
 	// Find the user that is requesting this handler.
-	var user models.User
-	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
 		ErrorPageHandler(ctx, NotFoundErrorPage)
 		return
 	}
