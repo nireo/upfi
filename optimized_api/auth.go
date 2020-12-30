@@ -1,7 +1,6 @@
 package optimized_api
 
 import (
-	"html/template"
 	"os"
 
 	"github.com/nireo/upfi/lib"
@@ -9,30 +8,20 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// ServeRegisterPage returns the requester with the html of the register page, but even though the
-// page servead, is a static page it's given out as a template, so that we can more easily add data in
-// the future, and the implementation is quite minimal.
+// ServeRegisterPage returns the register html page to the user.
 func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
+	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	tmpl := template.Must(template.ParseFiles("./static/register.html"))
-	if err := tmpl.Execute(ctx, nil); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		return
-	}
+	ctx.SendFile("./static/register.html")
 }
 
-// ServeLoginPage returns the requester with the html of the login page, but even though the
-// page served, is a static page it's given out as a template, so that we can more easily add data in
-// the future, and the implementation is quite minimal.
+// ServeLoginPage returns the login html page to the user.
 func ServeLoginPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
+	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	tmpl := template.Must(template.ParseFiles("./static/login.html"))
-	if err := tmpl.Execute(ctx, nil); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		return
-	}
+	ctx.SendFile("./static/login.html")
 }
 
 // Register handles the register request from the /register page html form. It creates checks for conflicting

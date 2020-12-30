@@ -19,14 +19,9 @@ import (
 func ServeUploadPage(ctx *fasthttp.RequestCtx) {
 	// Set the right Content-Type so that the html renders correctly.
 	ctx.Response.Header.Set("Content-Type", "text/html")
+	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	// Return the template, which just has a request form.
-	tmpl := template.Must(template.ParseFiles("./static/upload.html"))
-	err := tmpl.Execute(ctx, nil)
-	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		return
-	}
+	ctx.SendFile("./static/upload.html")
 }
 
 // UploadFile handles the logic of uploading a file from the upload file form.
