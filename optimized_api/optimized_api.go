@@ -17,10 +17,10 @@ func SetupOptimizedApi(port string) {
 
 	// Setup all the endpoints and add the CheckAuthentication middleware to protected routes,
 	// in which we need the user's username.
-	router.POST("/register", middleware.TinyLogger(Register))
-	router.POST("/login", middleware.TinyLogger(Login))
-	router.GET("/login", middleware.TinyLogger(ServeLoginPage))
-	router.GET("/register", middleware.TinyLogger(ServeRegisterPage))
+	router.POST("/register", middleware.TinyLogger(middleware.MoveIfAuthenticated(Register)))
+	router.POST("/login", middleware.TinyLogger(middleware.MoveIfAuthenticated(Login)))
+	router.GET("/login", middleware.TinyLogger(middleware.MoveIfAuthenticated(ServeLoginPage)))
+	router.GET("/register", middleware.TinyLogger(middleware.MoveIfAuthenticated(ServeRegisterPage)))
 	router.GET("/", middleware.TinyLogger(ServeHomePage))
 
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))

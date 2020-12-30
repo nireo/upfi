@@ -31,3 +31,10 @@ func ServeHomePage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.SendFile("./static/home.html")
 }
+
+// RedirectToAuthorized is a handler that moves the user to an authorized page if logged in.
+// For example: user goes to login page even though the user has an authorized token, so we move
+// the user to the files page.
+func RedirectToAuthorized(ctx *fasthttp.RequestCtx) {
+	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
+}

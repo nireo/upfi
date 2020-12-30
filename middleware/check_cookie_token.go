@@ -26,3 +26,22 @@ func CheckAuthentication(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusUnauthorized), fasthttp.StatusUnauthorized)
 	}
 }
+
+// MoveIfAuthenticated is a middleware which is used when going to pages like login or register, since
+// the user shouldn't go on the those pages if already authenticated.
+func MoveIfAuthenticated(h fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		cookie := ctx.Request.Header.Cookie("token")
+
+		username, err := lib.ValidateToken(string(cookie))
+		if err != nil {
+			// since the token is not valid, the user isn't authenticated so we move the user
+			// to the given handler.
+			h(ctx)
+			return
+		}
+
+		ctx.Request.Header.Add("username", username)
+		ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
+	}
+}
