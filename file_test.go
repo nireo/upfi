@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"github.com/nireo/upfi/optimized_api"
-	"github.com/valyala/fasthttp"
 )
 
-func TestHomeRoute(t *testing.T) {
-	r, err := http.NewRequest("GET", "http://test/", nil)
+func TestFileUploadPage(t *testing.T) {
+	r, err := http.NewRequest(http.MethodGet, "http://test/upload", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -19,7 +18,7 @@ func TestHomeRoute(t *testing.T) {
 		t.Error(err)
 	}
 
-	if res.StatusCode != fasthttp.StatusOK {
+	if res.StatusCode != http.StatusOK {
 		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
 	}
 
