@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/lib"
-	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/optimized_api"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -22,26 +18,21 @@ func main() {
 
 	// Store most of the enviroment varialbes into normal variables, so that the database connection
 	// line becomes more easier to read.
-	user := os.Getenv("db_username")
-	dbPort := os.Getenv("db_port")
-	host := os.Getenv("db_host")
-	dbName := os.Getenv("db_name")
-	serverPort := os.Getenv("port")
+	databaseConfig := &lib.DatabaseConfig{
+		User: os.Getenv("db_username"),
+		Port: os.Getenv("db_port"),
+		Host: os.Getenv("db_host"),
+		Name: os.Getenv("name"),
+	}
 
-	// Connect to the PostgreSQL database using gorm; which returns a pointer to the database, which we
-	// store in a utility file.
-	db, err := gorm.Open(postgres.New(postgres.Config{
-		DSN: fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", host, dbPort, user, dbName),
-	}), &gorm.Config{})
-	if err != nil {
+	// Use a library function to setup the database connection. Also migrates the models
+	// and sets a database constanst in the lib package.
+	if err := lib.ConnectToDatabase(databaseConfig); err != nil {
 		log.Fatal(err)
 	}
 
-	// Execute some setup functions which we need
-	models.MigrateModels(db)
-	lib.SetDatabase(db)
-
 	// Use the optimized version of the api, which uses the fasthttp package to improve performance
 	// Is its own function, since before there was a older implementation which used net/http.
+	serverPort := os.Getenv("port")
 	optimized_api.SetupOptimizedApi(serverPort)
 }
