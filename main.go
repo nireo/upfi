@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/nireo/upfi/lib"
+	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/optimized_api"
 )
 
@@ -18,16 +18,16 @@ func main() {
 
 	// Store most of the enviroment varialbes into normal variables, so that the database connection
 	// line becomes more easier to read.
-	databaseConfig := &lib.DatabaseConfig{
+	databaseConfig := &models.DatabaseConfig{
 		User: os.Getenv("db_username"),
 		Port: os.Getenv("db_port"),
 		Host: os.Getenv("db_host"),
-		Name: os.Getenv("name"),
+		Name: os.Getenv("db_name"),
 	}
 
 	// Use a library function to setup the database connection. Also migrates the models
 	// and sets a database constanst in the lib package.
-	if err := lib.ConnectToDatabase(databaseConfig); err != nil {
+	if err := models.ConnectToDatabase(databaseConfig); err != nil {
 		log.Fatal(err)
 	}
 

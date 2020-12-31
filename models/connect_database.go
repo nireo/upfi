@@ -1,9 +1,9 @@
-package lib
+package models
 
 import (
 	"fmt"
 
-	"github.com/nireo/upfi/models"
+	"github.com/nireo/upfi/lib"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -25,8 +25,8 @@ func ConnectToDatabase(conf *DatabaseConfig) error {
 		return err
 	}
 
-	models.MigrateModels(db)
-	SetDatabase(db)
+	MigrateModels(db)
+	lib.SetDatabase(db)
 
 	return nil
 }
