@@ -2,7 +2,10 @@ package models
 
 import (
 	"fmt"
+	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/lib"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -13,6 +16,21 @@ type DatabaseConfig struct {
 	Port string
 	Name string
 	Host string
+}
+
+func SetupTestDatabase() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Could not load env file")
+	}
+
+	conf := &DatabaseConfig{
+		User: os.Getenv("db_username"),
+		Port: os.Getenv("db_port"),
+		Host: os.Getenv("db_host"),
+		Name: os.Getenv("db_name"),
+	}
+
+	ConnectToDatabase(conf)
 }
 
 func ConnectToDatabase(conf *DatabaseConfig) error {
