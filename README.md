@@ -53,6 +53,16 @@ Or just to the run the service:
 go run main.go
 ```
 
+## Reset information
+
+There is the functionality to remove all files and all user data. This can be done by simply running:
+
+```
+go run main.go reset_information
+```
+
+After executing this command the program will just end. **NOTE this cannot be reversed.**
+
 ## Contributions
 
 Anyone can contribute to the project by creating a pull request!
