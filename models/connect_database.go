@@ -18,7 +18,7 @@ type DatabaseConfig struct {
 	Host string
 }
 
-func SetupTestDatabase() {
+func SetupTestDatabase() (*gorm.DB, error) {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Could not load env file")
 	}
@@ -30,7 +30,18 @@ func SetupTestDatabase() {
 		Name: os.Getenv("db_name"),
 	}
 
-	ConnectToDatabase(conf)
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN: fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
+			conf.Host, conf.Port, conf.User, conf.Name),
+	}), &gorm.Config{})
+
+	if err != nil {
+		return nil, err
+	}
+
+	lib.SetDatabase(db)
+
+	return db, nil
 }
 
 func ConnectToDatabase(conf *DatabaseConfig) error {

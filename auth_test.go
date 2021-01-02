@@ -7,7 +7,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/nireo/booru/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/optimized_api"
 	"github.com/valyala/fasthttp"
@@ -56,13 +55,11 @@ func TestRegisterRoute(t *testing.T) {
 // TestRegister first tests if account creation works through http and then tests
 // if removing user using different helper functions works.
 func TestRegister(t *testing.T) {
-	db := lib.GetDatabase()
-
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
 	_ = writer.WriteField("master", "secret")
-	_ = writer.WriteField("username", "testaccount12345")
+	_ = writer.WriteField("username", "user")
 	_ = writer.WriteField("password", "reallysecretpassword")
 
 	if err := writer.Close(); err != nil {
@@ -75,19 +72,15 @@ func TestRegister(t *testing.T) {
 	}
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	_, err = optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
 	if err != nil {
-		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
-	}
-
-	if res.StatusCode != fasthttp.StatusOK {
-		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
+		t.Error(err)
 	}
 
 	// check that the user has been created
-	var user models.User
-	if err := db.Where(&models.User{Username: "testaccount12345"}).First(&user).Error; err != nil {
-		t.Error("User was not created, err: ", err)
+	user, err := models.FindOneUser(&models.User{Username: "user"})
+	if err != nil {
+		t.Error("Could not find user, err: ", err)
 	}
 
 	// check that a folder has been created
@@ -98,5 +91,48 @@ func TestRegister(t *testing.T) {
 	// after all this remove the user
 	if err := user.Delete(); err != nil {
 		t.Error("Could not remove user, err: ", err)
+	}
+}
+
+func TestRegisterInvalidInput(t *testing.T) {
+	// Without sending any data
+	r, err := http.NewRequest(fasthttp.MethodPost, "http://test/register", nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res.StatusCode != fasthttp.StatusBadRequest {
+		t.Errorf("Wrong status code, wanted 401 got: %d", res.StatusCode)
+	}
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	_ = writer.WriteField("master", "secret")
+	_ = writer.WriteField("username", "user")
+	_ = writer.WriteField("password", "reallysecretpassword")
+
+	if err := writer.Close(); err != nil {
+		t.Error(err)
+	}
+
+	r2, err := http.NewRequest(fasthttp.MethodPost, "http://test/register", body)
+	if err != nil {
+		t.Error(err)
+	}
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	res2, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r2)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if res2.StatusCode != fasthttp.StatusBadRequest {
+		t.Errorf("Wrong status code, wanted 401 got: %d", res.StatusCode)
 	}
 }

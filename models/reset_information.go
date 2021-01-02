@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/nireo/upfi/lib"
+	"golang.org/x/exp/errors/fmt"
 )
 
 // ResetInformation removes all contents of the files folder and all of the
@@ -20,6 +21,7 @@ func ResetInformation() {
 	var users []User
 	db.Find(&users)
 	for _, user := range users {
+		fmt.Printf("Deleted user %s\n", user.Username)
 		db.Delete(user)
 	}
 
