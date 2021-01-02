@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/nireo/upfi/middleware"
 	"log"
 	"os"
 	"testing"
@@ -29,6 +30,8 @@ func TestMain(m *testing.M) {
 	if err := models.ConnectToDatabase(databaseConfig); err != nil {
 		log.Fatal(err)
 	}
+
+	middleware.SetHttpLogging(false)
 
 	exitCode := m.Run()
 

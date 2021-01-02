@@ -89,7 +89,7 @@ func TestRegister(t *testing.T) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
-	_ = writer.WriteField("master", "secret")
+	_ = writer.WriteField("master", "secret123456")
 	_ = writer.WriteField("username", "user")
 	_ = writer.WriteField("password", "reallysecretpassword")
 
@@ -199,6 +199,38 @@ func TestLoginInvalidInput(t *testing.T) {
 
 	if res.StatusCode != fasthttp.StatusBadRequest {
 		t.Errorf("Wrong status code, wanted 400 got: %d", res.StatusCode)
+		return
+	}
+}
+
+func TestLoginRoutePost(t *testing.T) {
+	// create a new user
+	if _, err := optimized_api.NewTestUser("logintest", "password"); err != nil {
+		t.Error(err)
+		return
+	}
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	_ = writer.WriteField("username", "logintest")
+	_ = writer.WriteField("password", "password")
+
+	if err := writer.Close(); err != nil {
+		t.Error(err)
+		return
+	}
+
+	r, err := http.NewRequest(fasthttp.MethodPost, "http://test/login", body)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	r.Header.Set("Content-Type", writer.FormDataContentType())
+
+	_, err = optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	if err != nil {
+		t.Error(err)
 		return
 	}
 }
