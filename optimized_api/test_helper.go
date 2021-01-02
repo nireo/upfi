@@ -2,26 +2,17 @@ package optimized_api
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
+	"os"
 
-	"github.com/buaazp/fasthttprouter"
+	"github.com/nireo/upfi/lib"
+	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttputil"
 )
-
-func SetupServerWithHandler(port, method string, handler fasthttp.RequestHandler) {
-	router := fasthttprouter.New()
-
-	// Since when we use this helper the we're testing a single route. Using '/' also makes the test code
-	// more clear.
-	router.Handle(method, "/", handler)
-	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {
-		log.Fatal("Error in ListenAndServe")
-	}
-}
 
 func ServeRouter(handler fasthttp.RequestHandler, req *http.Request) (*http.Response, error) {
 	ln := fasthttputil.NewInmemoryListener()
@@ -43,4 +34,38 @@ func ServeRouter(handler fasthttp.RequestHandler, req *http.Request) (*http.Resp
 	}
 
 	return client.Do(req)
+}
+
+// NewTestUser takes in a username and password, such that testing with authenticated routes is easier.
+// does pretty much everything like the normal register route except use http. Returns a token and an error.
+func NewTestUser(username, password string) (string, error) {
+	if len(username) < 3 || len(password) < 8 {
+		return "", errors.New("password and/or username too short")
+	}
+
+	if len(username) > 20 || len(password) > 32 {
+		return "", errors.New("password and/or username too long")
+	}
+
+	// no need to hash since it takes a lot of time and the user will be deleted after the tests.
+	newUser := models.User{
+		Username:             username,
+		Password:             password,
+		FileEncryptionMaster: "secret",
+		UUID:                 lib.GenerateUUID(),
+	}
+
+	if err := os.Mkdir("./files/"+newUser.UUID, os.ModePerm); err != nil {
+		return "", errors.New("could not create an user file directory")
+	}
+
+	db := lib.GetDatabase()
+	db.Create(&newUser)
+
+	token, err := lib.CreateToken(newUser.Username)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

@@ -51,6 +51,16 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// but this isn't as secure as using different passwords.
 	masterPass := form.Value["master"][0]
 
+	if len(username) < 3 || len(password) < 8 || len(masterPass) < 8 {
+		ErrorPageHandler(ctx, BadRequestErrorPage)
+		return
+	}
+
+	if len(username) > 20 || len(password) > 32 || len(masterPass) > 32 {
+		ErrorPageHandler(ctx, BadRequestErrorPage)
+		return
+	}
+
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.
 	if _, err := models.FindOneUser(&models.User{Username: username}); err == nil {
 		ErrorPageHandler(ctx, ConflictErrorPage)
@@ -118,6 +128,12 @@ func Login(ctx *fasthttp.RequestCtx) {
 	// Parse the multipart form
 	form, err := ctx.MultipartForm()
 	if err != nil {
+		ErrorPageHandler(ctx, BadRequestErrorPage)
+		return
+	}
+
+	// Check that the fields exist
+	if len(form.Value["username"]) == 0 || len(form.Value["password"]) == 0 {
 		ErrorPageHandler(ctx, BadRequestErrorPage)
 		return
 	}
