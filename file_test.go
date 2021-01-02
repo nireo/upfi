@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/nireo/upfi/optimized_api"
+	"github.com/valyala/fasthttp"
 )
 
 // TestFileUploadPageForbidden tests that when we try to access a site without authorization
@@ -21,12 +22,12 @@ func TestFileUploadPageUnAuthorized(t *testing.T) {
 		t.Error(err)
 	}
 
-	if res.StatusCode != http.StatusUnauthorized {
+	if res.StatusCode != fasthttp.StatusUnauthorized {
 		t.Errorf("Wrong status code, wanted 401 got: %d", res.StatusCode)
 	}
 }
 
-func AuthFilePagesReturnUnAuthorized(t *testing.T) {
+func TestAuthFilePagesReturnUnAuthorized(t *testing.T) {
 	toTest := []string{
 		"upload",
 		"file/testsetsetse",
@@ -45,8 +46,39 @@ func AuthFilePagesReturnUnAuthorized(t *testing.T) {
 			t.Error(err)
 		}
 
-		if res.StatusCode != http.StatusUnauthorized {
+		if res.StatusCode != fasthttp.StatusUnauthorized {
 			t.Errorf("Wrong status code, wanted 401 got: %d", res.StatusCode)
 		}
+	}
+}
+
+func TestUploadPageLoadsWithToken(t *testing.T) {
+	token, err := optimized_api.NewTestUser("username", "password")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	r, err := http.NewRequest(http.MethodGet, "http://test/upload", nil)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	r.AddCookie(&http.Cookie{Name: "token", Value: token})
+	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if res.StatusCode != fasthttp.StatusOK {
+		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
+		return
+	}
+
+	if res.Header.Get("Content-Type") != "text/html" {
+		t.Errorf("Wrong content type, wanted 'text/html' got: '%s'", res.Header.Get("Content-Type"))
+		return
 	}
 }

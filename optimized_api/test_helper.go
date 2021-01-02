@@ -1,9 +1,11 @@
 package optimized_api
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"os"
@@ -68,4 +70,19 @@ func NewTestUser(username, password string) (string, error) {
 	}
 
 	return token, nil
+}
+
+func CreateMultipartForm(fields map[string]string) (*bytes.Buffer, error) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	for key, val := range fields {
+		_ = writer.WriteField(key, val)
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
