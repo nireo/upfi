@@ -205,7 +205,8 @@ func TestLoginInvalidInput(t *testing.T) {
 
 func TestLoginRoutePost(t *testing.T) {
 	// create a new user
-	if _, err := optimized_api.NewTestUser("logintest", "password"); err != nil {
+	token, err := optimized_api.NewTestUser("logintest", "password")
+	if err != nil {
 		t.Error(err)
 		return
 	}
@@ -227,10 +228,22 @@ func TestLoginRoutePost(t *testing.T) {
 		return
 	}
 	r.Header.Set("Content-Type", writer.FormDataContentType())
+	r.AddCookie(&http.Cookie{Name: "token", Value: token})
 
-	_, err = optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
+	}
+
+	// We are directed to the /files page, so we check if redirecting us was successful.
+	if res.StatusCode != fasthttp.StatusOK {
+		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
+		return
+	}
+
+	// check that the content type matches that of the files page.
+	if res.Header.Get("Content-Type") != "text/html" {
+		t.Errorf("Wrong content type, wanted 'text/html' got: %s", res.Header.Get("Content-Type"))
 	}
 }
