@@ -49,10 +49,14 @@ func NewTestUser(username, password string) (string, error) {
 		return "", errors.New("password and/or username too long")
 	}
 
-	// no need to hash since it takes a lot of time and the user will be deleted after the tests.
+	passwordHash, err := lib.HashPassword(password)
+	if err != nil {
+		return "", errors.New("problem when hashing password")
+	}
+
 	newUser := models.User{
 		Username:             username,
-		Password:             password,
+		Password:             passwordHash,
 		FileEncryptionMaster: "secret",
 		UUID:                 lib.GenerateUUID(),
 	}
@@ -72,6 +76,8 @@ func NewTestUser(username, password string) (string, error) {
 	return token, nil
 }
 
+// CreateMultipartForm takes a map[string]string map and returns a bytes.Buffer which contains all the fields in a
+// multipart form format.
 func CreateMultipartForm(fields map[string]string) (*bytes.Buffer, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)

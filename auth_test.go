@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// TestNewTestUser creates a user using the NewTestUser function which is used in tests to easily create a user.
 func TestNewTestUser(t *testing.T) {
 	username, password := "username", "password"
 	token, err := optimized_api.NewTestUser(username, password)
@@ -39,6 +41,8 @@ func TestNewTestUser(t *testing.T) {
 	}
 }
 
+// TestLoginRouteGet tests if going to the login handler page returns a text/html content page with a successful status
+// code.
 func TestLoginRouteGet(t *testing.T) {
 	r, err := http.NewRequest("GET", "http://test/login", nil)
 	if err != nil {
@@ -59,6 +63,8 @@ func TestLoginRouteGet(t *testing.T) {
 	}
 }
 
+// TestRegisterRouteGet tests if going to the register handler page returns a text/html content page with a successful
+// status code.
 func TestRegisterRouteGet(t *testing.T) {
 	r, err := http.NewRequest("GET", "http://test/register", nil)
 	if err != nil {
@@ -131,6 +137,8 @@ func TestRegister(t *testing.T) {
 	}
 }
 
+// TestRegisterInvalidInput tests the register handler with different edge case input that should be handeled properly
+// and the handler should return the fasthttp.StatusBadRequest which is 400.
 func TestRegisterInvalidInput(t *testing.T) {
 	// Without sending any data
 	r, err := http.NewRequest(fasthttp.MethodPost, "http://test/register", nil)
@@ -203,6 +211,9 @@ func TestLoginInvalidInput(t *testing.T) {
 	}
 }
 
+// TestLoginRoutePost tests a login into the login page. We add a token to the request ourselves, since for some reason
+// the http.Response doesn't include a token. The fasthttp.StatusOK check if for testing if the user was successfully
+// redirected to the files page.
 func TestLoginRoutePost(t *testing.T) {
 	// create a new user
 	token, err := optimized_api.NewTestUser("logintest", "password")
@@ -245,5 +256,45 @@ func TestLoginRoutePost(t *testing.T) {
 	// check that the content type matches that of the files page.
 	if res.Header.Get("Content-Type") != "text/html" {
 		t.Errorf("Wrong content type, wanted 'text/html' got: %s", res.Header.Get("Content-Type"))
+	}
+}
+
+// RedirectIfToken checks if the routes '/login' and '/register' redirect when the user enters them when owning a auth
+// token. The routes should return the status code 308 which stands for MovedPermanently.
+func TestRedirectIfToken(t *testing.T) {
+	token, err := optimized_api.NewTestUser("redirecttest", "password")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	routesToCheck := []string{
+		"login",
+		"register",
+	}
+
+	for _, route := range routesToCheck {
+		r, err := http.NewRequest(fasthttp.MethodPost, fmt.Sprintf("http://test/%s", route), nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		r.AddCookie(&http.Cookie{Name: "token", Value: token})
+
+		res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if res.StatusCode != fasthttp.StatusOK {
+			t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
+			return
+		}
+
+		if res.Request.URL.String() != "http://test/files" {
+			t.Errorf("Wrong ending url, wanted 'http://test/files' got: %s", res.Request.URL.String())
+			return
+		}
 	}
 }

@@ -15,18 +15,22 @@ func TestFileUploadPageUnAuthorized(t *testing.T) {
 	r, err := http.NewRequest(http.MethodGet, "http://test/upload", nil)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if res.StatusCode != fasthttp.StatusUnauthorized {
 		t.Errorf("Wrong status code, wanted 401 got: %d", res.StatusCode)
+		return
 	}
 }
 
+// TestAuthFilePagesReturnUnAuthorized checks if going to all the protected pages returns a unauthorized status code.
 func TestAuthFilePagesReturnUnAuthorized(t *testing.T) {
 	toTest := []string{
 		"upload",
@@ -39,11 +43,13 @@ func TestAuthFilePagesReturnUnAuthorized(t *testing.T) {
 		r, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://test/%s", page), nil)
 		if err != nil {
 			t.Error(err)
+			return
 		}
 
 		res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
 		if err != nil {
 			t.Error(err)
+			return
 		}
 
 		if res.StatusCode != fasthttp.StatusUnauthorized {
@@ -52,6 +58,8 @@ func TestAuthFilePagesReturnUnAuthorized(t *testing.T) {
 	}
 }
 
+// TestUploadPageLoadsWithToken tests if we append a auth token to the request and the handler returns text/html and a
+// successful status code.
 func TestUploadPageLoadsWithToken(t *testing.T) {
 	token, err := optimized_api.NewTestUser("username", "password")
 	if err != nil {

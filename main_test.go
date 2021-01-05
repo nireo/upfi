@@ -10,6 +10,8 @@ import (
 	"github.com/nireo/upfi/models"
 )
 
+// TestMain setups the database connection such that the http handlers work properly. Also disabled the http logging,
+// since test output looks quite confusing with http logging in the same place.
 func TestMain(m *testing.M) {
 	if err := godotenv.Load(); err != nil {
 		// Stop the execution, since we need all of the environment varialbes
@@ -31,11 +33,14 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 
+	// Disable http logging
 	middleware.SetHttpLogging(false)
 
+	// Run all the tests
 	exitCode := m.Run()
 
+	// Remove all the information created during the testing. NOTE: Also removed all of the files and database data
+	// from every user.
 	models.ResetInformation()
-
 	os.Exit(exitCode)
 }
