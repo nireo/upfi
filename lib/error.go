@@ -1,4 +1,4 @@
-package optimized_api
+package lib
 
 import "github.com/valyala/fasthttp"
 
@@ -43,3 +43,11 @@ var (
 		Description: "The username is already taken.",
 	}
 )
+
+func CreateSimpleErrorContent(statusCode int) *ErrorPageContent {
+	return &ErrorPageContent{
+		StatusCode:  statusCode,
+		MainMessage: fasthttp.StatusMessage(statusCode),
+		Description: "No description provided.",
+	}
+}

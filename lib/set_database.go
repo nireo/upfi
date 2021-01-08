@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"log"
 
 	"gorm.io/gorm"
@@ -12,7 +11,6 @@ var db *gorm.DB
 // SetDatabase sets the global variable in this file to database instance created in the main function.
 func SetDatabase(database *gorm.DB) {
 	db = database
-	fmt.Println(database)
 	log.Println("The database has been set.")
 }
 

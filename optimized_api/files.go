@@ -30,14 +30,14 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	// Get the file from the request form.
 	header, err := ctx.FormFile("file")
 	if err != nil {
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
 	// Parse the multipart form so that we can check for other values, such as custom filenames or descriptions.
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		ErrorPageHandler(ctx, BadRequestErrorPage)
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
@@ -46,18 +46,18 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
-		ErrorPageHandler(ctx, BadRequestErrorPage)
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	if len(form.Value["master"]) == 0 {
-		ErrorPageHandler(ctx, BadRequestErrorPage)
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	// Check that the user's master passwords is correct.
 	if !lib.CheckPasswordHash(form.Value["master"][0], user.FileEncryptionMaster) {
-		ErrorPageHandler(ctx, ForbiddenErrorPage)
+		ErrorPageHandler(ctx, lib.ForbiddenErrorPage)
 		return
 	}
 
@@ -80,20 +80,20 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	// io.Reader. This is needed to read the bytes in the file.
 	multipartFile, err := header.Open()
 	if err != nil {
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
 	// Read the bytes of the file into a buffer.
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, multipartFile); err != nil {
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
 	// Encrypt the data of the file using AESCipher and store it into the before defined path.
 	if err := crypt.EncryptToDst(path, buf.Bytes(), form.Value["master"][0]); err != nil {
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -102,7 +102,7 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	fileHeader := make([]byte, 512)
 	// Copy the headers into the FileHeader buffer
 	if _, err := multipartFile.Read(fileHeader); err != nil {
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -119,20 +119,20 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	fileID := ctx.UserValue("file").(string)
 	var file models.File
 	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
-		ErrorPageHandler(ctx, ForbiddenErrorPage)
+		ErrorPageHandler(ctx, lib.ForbiddenErrorPage)
 		return
 	}
 
@@ -152,7 +152,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	// Find the user's database entry who is requesting this handler.
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
@@ -160,14 +160,14 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	fileID := ctx.UserValue("file").(string)
 	var file models.File
 	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
 		// We return not found, since we don't want the unauthorized user to know about the file's existance.
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
@@ -196,7 +196,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	// Find the user's database entry who is requesting this handler.
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
@@ -215,7 +215,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	if err := tmpl.Execute(ctx, data); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 }
@@ -230,7 +230,7 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 	// Find the database entry of the user that requested this handler.
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
@@ -238,7 +238,7 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 	fileID := ctx.UserValue("file").(string)
 	var file models.File
 	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
@@ -246,13 +246,13 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 	if user.ID != file.UserID {
 		// Return a not found error, since we don't want the unauthorized user to know about the
 		// file's existance
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	// Remove the file, if the file cannot be removed the return a internal server error to the user.
 	if err := os.Remove("./files/" + user.UUID + "/" + fmt.Sprintf("%s%s", file.UUID, file.Extension)); err != nil {
-		ErrorPageHandler(ctx, InternalServerErrorPage)
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -273,7 +273,7 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	// Parse the multipart form so that we can take the 'title' and 'description' fields.
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		ErrorPageHandler(ctx, BadRequestErrorPage)
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
@@ -289,14 +289,14 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 
 	// The description can be empty, but the title cannot
 	if title == "" {
-		ErrorPageHandler(ctx, BadRequestErrorPage)
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	// Find the user that is requesting this handler.
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
@@ -304,13 +304,13 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	fileID := ctx.UserValue("file").(string)
 	var file models.File
 	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	// Check that the user owns the file
 	if user.ID != file.UserID {
-		ErrorPageHandler(ctx, NotFoundErrorPage)
+		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 

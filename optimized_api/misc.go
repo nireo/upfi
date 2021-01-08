@@ -3,12 +3,13 @@ package optimized_api
 import (
 	"html/template"
 
+	"github.com/nireo/upfi/lib"
 	"github.com/valyala/fasthttp"
 )
 
 // ErrorPageHandler takes in a request context and a error type which is then used in a template to
 // dynamically display an error page.
-func ErrorPageHandler(ctx *fasthttp.RequestCtx, errorType ErrorPageContent) {
+func ErrorPageHandler(ctx *fasthttp.RequestCtx, errorType lib.ErrorPageContent) {
 	// Set the proper headers.
 	ctx.Response.SetStatusCode(errorType.StatusCode)
 	ctx.Response.Header.Set("Content-Type", "text/html")
