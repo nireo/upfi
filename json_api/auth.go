@@ -96,3 +96,48 @@ func Register(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.SetCookie(&cookie)
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 }
+
+type loginRequestBody struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func Login(ctx *fasthttp.RequestCtx) {
+	var body loginRequestBody
+	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		return
+	}
+
+	// Store the form fields in variables, so the code is cleaner.
+	username := body.Username
+	password := body.Password
+
+	// Check that a user with the given username actually exists.
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		return
+	}
+
+	// Compare the hash on the database model to the hash of the given password.
+	if !lib.CheckPasswordHash(password, user.Password) {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		return
+	}
+
+	// Create a token for the user, with which the user can use different authenticated routes
+	token, err := lib.CreateToken(user.Username)
+	if err != nil {
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		return
+	}
+
+	// Store the token in a cookie, which the authentication middleware checks when
+	// accessing authenticated routes.
+	var cookie fasthttp.Cookie
+	cookie.SetKey("token")
+	cookie.SetValue(token)
+	ctx.Response.Header.SetCookie(&cookie)
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+}
