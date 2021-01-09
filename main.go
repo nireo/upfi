@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/nireo/upfi/json_api"
 	"log"
 	"os"
 
@@ -40,5 +41,9 @@ func main() {
 		return
 	}
 
-	optimized_api.SetupOptimizedApi(serverPort)
+	if len(os.Args) == 2 && os.Args[1] == "json" {
+		json_api.RunJSONApi(serverPort)
+	} else {
+		optimized_api.SetupOptimizedApi(serverPort)
+	}
 }

@@ -11,14 +11,14 @@ import (
 type registerRequestBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Master string `json:"master"`
+	Master   string `json:"master"`
 }
 
 func Register(ctx *fasthttp.RequestCtx) {
 	var body registerRequestBody
 	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {
 		// Since the parsing didn't work the request body doesn't have all the needed fields
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
@@ -31,25 +31,25 @@ func Register(ctx *fasthttp.RequestCtx) {
 	masterPass := body.Master
 
 	if len(username) < 3 || len(password) < 8 || len(masterPass) < 8 {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	if len(username) > 20 || len(password) > 32 || len(masterPass) > 32 {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.
 	if _, err := models.FindOneUser(&models.User{Username: username}); err == nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusConflict), fasthttp.StatusConflict)
+		ServeErrorJSON(ctx, lib.ConflictErrorPage)
 		return
 	}
 
 	// Hash the password of the user using bcrypt.
 	passwordHash, err := lib.HashPassword(password)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -57,7 +57,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// check the validity of the password.
 	masterHash, err := lib.HashPassword(masterPass)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -73,7 +73,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// user's files.
 	err = os.Mkdir("./files/"+newUser.UUID, os.ModePerm)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -84,7 +84,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// Create a new authentication token for the user so that he/she can use authenticated routes.
 	token, err := lib.CreateToken(newUser.Username)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
 	}
 
@@ -105,7 +105,8 @@ type loginRequestBody struct {
 func Login(ctx *fasthttp.RequestCtx) {
 	var body loginRequestBody
 	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusBadRequest), fasthttp.StatusBadRequest)
+		// Since parsing the json wasn't successful, the body doesn't have all the required fields.
+		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
@@ -116,20 +117,20 @@ func Login(ctx *fasthttp.RequestCtx) {
 	// Check that a user with the given username actually exists.
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	// Compare the hash on the database model to the hash of the given password.
 	if !lib.CheckPasswordHash(password, user.Password) {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusForbidden), fasthttp.StatusForbidden)
+		ServeErrorJSON(ctx, lib.ForbiddenErrorPage)
 		return
 	}
 
 	// Create a token for the user, with which the user can use different authenticated routes
 	token, err := lib.CreateToken(user.Username)
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
 	}
 

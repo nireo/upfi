@@ -6,12 +6,12 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// WhoAmI handlers checks for a token and if a token was found return information about the user that has the token
+// WhoAmI handlers checks for a token and if a token was found return information about the user that has the token.
+// This is used to set the user state in the front-end and have it up-to-date.
 func WhoAmI(ctx *fasthttp.RequestCtx) {
-	username := string(ctx.Request.Header.Peek("username"))
-	user, err := models.FindOneUser(&models.User{Username: username})
+	user, err := models.FindOneUser(&models.User{Username: string(ctx.Request.Header.Peek("username"))})
 	if err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
