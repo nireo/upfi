@@ -30,12 +30,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// but this isn't as secure as using different passwords.
 	masterPass := body.Master
 
-	if len(username) < 3 || len(password) < 8 || len(masterPass) < 8 {
-		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
-		return
-	}
-
-	if len(username) > 20 || len(password) > 32 || len(masterPass) > 32 {
+	if !lib.IsUsernameValid(username) || !lib.IsPasswordValid(password) || !lib.IsPasswordValid(masterPass) {
 		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
 		return
 	}

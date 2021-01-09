@@ -51,14 +51,8 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// but this isn't as secure as using different passwords.
 	masterPass := form.Value["master"][0]
 
-	if len(username) < 3 || len(password) < 8 || len(masterPass) < 8 {
+	if !lib.IsUsernameValid(username) || !lib.IsPasswordValid(password) || !lib.IsPasswordValid(masterPass) {
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
-		return
-	}
-
-	if len(username) > 20 || len(password) > 32 || len(masterPass) > 32 {
-		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
-		return
 	}
 
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.

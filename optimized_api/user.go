@@ -61,9 +61,15 @@ func HandleSettingChange(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	// Check that the username field exists to prevent an index out of bounds error.
+	if len(form.Value["username"]) == 0 {
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
+		return
+	}
+
 	// Check if the user has decided to update their username
 	newUsername := form.Value["username"][0]
-	if newUsername == "" {
+	if !lib.IsUsernameValid(newUsername) {
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
@@ -148,6 +154,13 @@ func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	// Take the current and new password from the request and do some checking on them.
 	currentPassword := form.Value["password"][0]
 	newPassword := form.Value["newPassword"][0]
+
+	// We don't need to check the validity of the currentPassword since this password has already
+	// been checked when the user registered.
+	if !lib.IsPasswordValid(newPassword) {
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
+		return
+	}
 
 	// Check that the current password in the form matches the one on the user model.
 	if !lib.CheckPasswordHash(currentPassword, user.Password) {

@@ -1,6 +1,8 @@
 package json_api
 
 import (
+	"encoding/json"
+
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
@@ -16,4 +18,16 @@ func WhoAmI(ctx *fasthttp.RequestCtx) {
 	}
 
 	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, user)
+}
+
+type handleSettingsChangeBody struct {
+	Username string `json:"username"`
+}
+
+func HandleSettingsChange(ctx *fasthttp.RequestCtx) {
+	var body handleSettingsChangeBody
+	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {
+		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
+		return
+	}
 }
