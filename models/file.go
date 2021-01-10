@@ -10,13 +10,13 @@ import (
 // File is a database struct, which also holds properties of gorm.Model
 type File struct {
 	gorm.Model
-	Filename    string
-	UUID        string
-	Description string
-	Size        int64
+	Filename    string `json:"filename"`
+	UUID        string `json:"uuid"`
+	Description string `json:"description"`
+	Size        int64  `json:"size"`
 	UserID      uint
-	Extension   string
-	MIME        string
+	Extension   string `json:"extension"`
+	MIME        string `json:"mime"`
 }
 
 // Serialize serializes the user's data into json format
