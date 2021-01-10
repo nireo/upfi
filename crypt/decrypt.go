@@ -37,6 +37,8 @@ func decrypt(data []byte, passphrase string) ([]byte, error) {
 	return plaintext, nil
 }
 
+// DecryptToDst takes in a file path destination, a source file path and a decryption key.
+// The file from src is decrypted using the key and then the decrypted file is placed into dst.
 func DecryptToDst(dst, src, key string) error {
 	data, err := ioutil.ReadFile(src)
 	if err != nil {

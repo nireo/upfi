@@ -25,6 +25,8 @@ func encrypt(data []byte, passphrase string) ([]byte, error) {
 	return ciphertext, nil
 }
 
+// EncryptToDst takes in a destination path, file data and an encryption key. The given data is encrypted
+// using the encryption key and written into the dst location.
 func EncryptToDst(dst string, data []byte, key string) error {
 	file, err := os.Create(dst)
 	if err != nil {

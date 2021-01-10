@@ -9,6 +9,7 @@ import (
 
 var jwtKey = []byte("something_very_secret")
 
+// C is a simple struct to keep the username and the standard claims of a jwt, such as the expiration time
 type C struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
