@@ -1,4 +1,4 @@
-package json_api
+package jsonapi
 
 import (
 	"encoding/json"

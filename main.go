@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nireo/upfi/json_api"
+	"github.com/nireo/upfi/jsonapi"
 	"log"
 	"os"
 
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	if len(os.Args) == 2 && os.Args[1] == "json" {
-		json_api.RunJSONApi(serverPort)
+		jsonapi.RunJSONApi(serverPort)
 	} else {
 		templateapi.SetupTemplateApi(serverPort)
 	}
