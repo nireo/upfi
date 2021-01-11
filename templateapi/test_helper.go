@@ -1,4 +1,4 @@
-package optimized_api
+package templateapi
 
 import (
 	"bytes"

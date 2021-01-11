@@ -1,6 +1,6 @@
 # upfi: file management server
 
-> upfi is a minimal version of google drive.
+[![Go Report Card](https://goreportcard.com/badge/github.com/nireo/upfi)](https://goreportcard.com/report/github.com/nireo/upfi)
 
 ## Goal
 

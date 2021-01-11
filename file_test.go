@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/nireo/upfi/optimized_api"
+	"github.com/nireo/upfi/templateapi"
 	"github.com/valyala/fasthttp"
 )
 
@@ -18,7 +18,7 @@ func TestFileUploadPageUnAuthorized(t *testing.T) {
 		return
 	}
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -46,7 +46,7 @@ func TestAuthFilePagesReturnUnAuthorized(t *testing.T) {
 			return
 		}
 
-		res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+		res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 		if err != nil {
 			t.Error(err)
 			return
@@ -61,7 +61,7 @@ func TestAuthFilePagesReturnUnAuthorized(t *testing.T) {
 // TestUploadPageLoadsWithToken tests if we append a auth token to the request and the handler returns text/html and a
 // successful status code.
 func TestUploadPageLoadsWithToken(t *testing.T) {
-	token, err := optimized_api.NewTestUser("username", "password")
+	token, err := templateapi.NewTestUser("username", "password")
 	if err != nil {
 		t.Error(err)
 		return
@@ -74,7 +74,7 @@ func TestUploadPageLoadsWithToken(t *testing.T) {
 	}
 
 	r.AddCookie(&http.Cookie{Name: "token", Value: token})
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return

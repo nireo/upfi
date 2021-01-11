@@ -7,7 +7,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/models"
-	"github.com/nireo/upfi/optimized_api"
+	"github.com/nireo/upfi/templateapi"
 )
 
 func main() {
@@ -44,6 +44,6 @@ func main() {
 	if len(os.Args) == 2 && os.Args[1] == "json" {
 		json_api.RunJSONApi(serverPort)
 	} else {
-		optimized_api.SetupOptimizedApi(serverPort)
+		templateapi.SetupTemplateApi(serverPort)
 	}
 }

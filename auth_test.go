@@ -9,14 +9,14 @@ import (
 	"testing"
 
 	"github.com/nireo/upfi/models"
-	"github.com/nireo/upfi/optimized_api"
+	"github.com/nireo/upfi/templateapi"
 	"github.com/valyala/fasthttp"
 )
 
 // TestNewTestUser creates a user using the NewTestUser function which is used in tests to easily create a user.
 func TestNewTestUser(t *testing.T) {
 	username, password := "username", "password"
-	token, err := optimized_api.NewTestUser(username, password)
+	token, err := templateapi.NewTestUser(username, password)
 	if err != nil {
 		t.Error(err)
 		return
@@ -49,7 +49,7 @@ func TestLoginRouteGet(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 	}
@@ -72,7 +72,7 @@ func TestRegisterRouteGet(t *testing.T) {
 		return
 	}
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -111,7 +111,7 @@ func TestRegister(t *testing.T) {
 	}
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	_, err = optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	_, err = templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -147,7 +147,7 @@ func TestRegisterInvalidInput(t *testing.T) {
 		return
 	}
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -177,7 +177,7 @@ func TestRegisterInvalidInput(t *testing.T) {
 	}
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	res2, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r2)
+	res2, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r2)
 	if err != nil {
 		t.Error(err)
 		return
@@ -199,7 +199,7 @@ func TestLoginInvalidInput(t *testing.T) {
 		return
 	}
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -216,7 +216,7 @@ func TestLoginInvalidInput(t *testing.T) {
 // redirected to the files page.
 func TestLoginRoutePost(t *testing.T) {
 	// create a new user
-	token, err := optimized_api.NewTestUser("logintest", "password")
+	token, err := templateapi.NewTestUser("logintest", "password")
 	if err != nil {
 		t.Error(err)
 		return
@@ -241,7 +241,7 @@ func TestLoginRoutePost(t *testing.T) {
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	r.AddCookie(&http.Cookie{Name: "token", Value: token})
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
@@ -262,7 +262,7 @@ func TestLoginRoutePost(t *testing.T) {
 // RedirectIfToken checks if the routes '/login' and '/register' redirect when the user enters them when owning a auth
 // token. The routes should return the status code 308 which stands for MovedPermanently.
 func TestRedirectIfToken(t *testing.T) {
-	token, err := optimized_api.NewTestUser("redirecttest", "password")
+	token, err := templateapi.NewTestUser("redirecttest", "password")
 	if err != nil {
 		t.Error(err)
 		return
@@ -281,7 +281,7 @@ func TestRedirectIfToken(t *testing.T) {
 		}
 		r.AddCookie(&http.Cookie{Name: "token", Value: token})
 
-		res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+		res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 		if err != nil {
 			t.Error(err)
 			return

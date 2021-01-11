@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/nireo/upfi/optimized_api"
+	"github.com/nireo/upfi/templateapi"
 	"github.com/valyala/fasthttp"
 )
 
@@ -16,7 +16,7 @@ func TestHomeRoute(t *testing.T) {
 		return
 	}
 
-	res, err := optimized_api.ServeRouter(optimized_api.CreateRouter().Handler, r)
+	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
