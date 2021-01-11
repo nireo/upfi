@@ -16,6 +16,9 @@ func CreateJSONRouter() *fasthttprouter.Router {
 	router.POST("/api/upload", middleware.CheckAuthentication(templateapi.UploadFile))
 	router.GET("/api/single", middleware.CheckAuthentication(GetSingleFile))
 
+	router.DELETE("/api/file", middleware.CheckAuthentication(DeleteFile))
+	router.GET("/api/files", middleware.CheckAuthentication(GetUserFiles))
+
 	router.PATCH("/api/file", middleware.CheckAuthentication(UpdateFile))
 
 	router.DELETE("/api/username", middleware.CheckAuthentication(templateapi.DeleteUser))
