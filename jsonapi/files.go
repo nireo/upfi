@@ -1,9 +1,15 @@
 package jsonapi
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"path/filepath"
 
+	"github.com/nireo/upfi/crypt"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
@@ -32,6 +38,88 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	}
 
 	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, file)
+}
+
+func UploadFile(ctx *fasthttp.RequestCtx) {
+	header, err := ctx.FormFile("file")
+	if err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	db := lib.GetDatabase()
+	user, err := models.FindOneUser(&models.User{Username: string(ctx.Request.Header.Peek("username"))})
+	if err != nil {
+		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
+		return
+	}
+
+	if len(form.Value["master"]) == 0 {
+		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
+		return
+	}
+
+	// Check that the user's master passwords is correct.
+	if !lib.CheckPasswordHash(form.Value["master"][0], user.FileEncryptionMaster) {
+		ServeErrorJSON(ctx, lib.ForbiddenErrorPage)
+		return
+	}
+
+	// Construct a database entry
+	newFileEntry := &models.File{
+		Filename:    header.Filename,
+		UUID:        lib.GenerateUUID(),
+		Description: form.Value["description"][0],
+		Size:        header.Size,
+		UserID:      user.ID,
+		Extension:   filepath.Ext(header.Filename),
+	}
+
+	// Define a path, where the file should be stored. Even though we encrypt the file, we
+	// still want to keep the extension, since windows for example does not work without proper file
+	// types.
+	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
+
+	// Read the file from the header. This is done because we need *multipart.File, which implements
+	// io.Reader. This is needed to read the bytes in the file.
+	multipartFile, err := header.Open()
+	if err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	// Read the bytes of the file into a buffer.
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, multipartFile); err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	// Encrypt the data of the file using AESCipher and store it into the before defined path.
+	if err := crypt.EncryptToDst(path, buf.Bytes(), form.Value["master"][0]); err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	// Read the mimetype so that we can set the content type properly
+	// Create a buffer to store the header of the file in
+	fileHeader := make([]byte, 512)
+	// Copy the headers into the FileHeader buffer
+	if _, err := multipartFile.Read(fileHeader); err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	newFileEntry.MIME = http.DetectContentType(fileHeader)
+
+	db.Create(newFileEntry)
+	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, newFileEntry)
 }
 
 type updateFileBody struct {

@@ -11,10 +11,8 @@ func CreateJSONRouter() *fasthttprouter.Router {
 	router.POST("/api/register", Register)
 	router.POST("/api/login", Login)
 
-	// Use the optimized api file upload function since we can't really upload files using json.
-	// So we just reuse the old since no need to copy-and-paste.
-	router.POST("/api/upload", middleware.CheckAuthentication(templateapi.UploadFile))
-	router.GET("/api/single", middleware.CheckAuthentication(GetSingleFile))
+	router.POST("/api/file", middleware.CheckAuthentication(UploadFile))
+	router.GET("/api/file", middleware.CheckAuthentication(GetSingleFile))
 
 	router.DELETE("/api/file", middleware.CheckAuthentication(DeleteFile))
 	router.GET("/api/files", middleware.CheckAuthentication(GetUserFiles))
