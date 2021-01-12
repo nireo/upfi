@@ -10,15 +10,16 @@ import (
 
 var (
 	// Define an output such that the log package doesn't display the date (we don't want the date in every logger)
-	output = log.New(os.Stdout, "", 0)
+	output  = log.New(os.Stdout, "", 0)
 	enabled = true
 )
 
-func SetHttpLogging(condition bool) {
+// SetHTTPLogging sets the variable in this file to a given condition
+func SetHTTPLogging(condition bool) {
 	enabled = condition
 }
 
-func getHttpVersion(ctx *fasthttp.RequestCtx) string {
+func getHTTPVersion(ctx *fasthttp.RequestCtx) string {
 	if ctx.Response.Header.IsHTTP11() {
 		return "HTTP/1.1"
 	}
@@ -54,7 +55,7 @@ func FullLogger(req fasthttp.RequestHandler) fasthttp.RequestHandler {
 			output.Printf("[%v] %v | %s | %s %s - %v - %v | %s",
 				end.Format("2006/01/02 - 15:04:05"),
 				ctx.RemoteAddr(),
-				getHttpVersion(ctx),
+				getHTTPVersion(ctx),
 				ctx.Method(),
 				ctx.RequestURI(),
 				ctx.Response.Header.StatusCode(),

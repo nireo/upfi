@@ -38,7 +38,7 @@ func ServeSettingsPage(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-// HandleSettingsChange applies the new settings to the new user's database entry. This handler will get
+// HandleSettingChange applies the new settings to the new user's database entry. This handler will get
 // called by the ServeSettingsPage handler's html template.
 func HandleSettingChange(ctx *fasthttp.RequestCtx) {
 	// The auth token middleware appends the user's username in to the request header, if the

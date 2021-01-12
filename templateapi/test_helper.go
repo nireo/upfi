@@ -16,6 +16,8 @@ import (
 	"github.com/valyala/fasthttp/fasthttputil"
 )
 
+// ServeRouter servers an internal memory listener which is hosted in the http://test address.
+// This helps with testing all of the http handlers.
 func ServeRouter(handler fasthttp.RequestHandler, req *http.Request) (*http.Response, error) {
 	ln := fasthttputil.NewInmemoryListener()
 	defer ln.Close()

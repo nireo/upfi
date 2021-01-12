@@ -30,10 +30,10 @@ func (file *File) Serialize() lib.JSON {
 }
 
 // Delete removes a given file and it's database entry
-func (file *File) Delete(userId string) error {
+func (file *File) Delete(userID string) error {
 	db := lib.GetDatabase()
 
-	err := os.Remove("./files/" + userId + "/" + file.Filename)
+	err := os.Remove("./files/" + userID + "/" + file.Filename)
 	if err != nil {
 		return err
 	}

@@ -9,8 +9,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// SetupTemplateApi starts a HTTP listener on a given port with all the routes in the program.
-func SetupTemplateApi(port string) {
+// SetupTemplateAPI starts a HTTP listener on a given port with all the routes in the program.
+func SetupTemplateAPI(port string) {
 	// Create a new instance of a router. (Not really necessary, because we can route ourselves, but
 	// this way the implementation is cleaner.)
 	router := fasthttprouter.New()

@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// Disable http logging
-	middleware.SetHttpLogging(false)
+	middleware.SetHTTPLogging(false)
 
 	// Run all the tests
 	exitCode := m.Run()

@@ -14,6 +14,9 @@ type registerRequestBody struct {
 	Master   string `json:"master"`
 }
 
+// Register handles the registeration. It creates checks for conflicting usernames and creates a folder
+// to the store all of the user's files in. Finally it creates a database entry with all the information
+// in given json.
 func Register(ctx *fasthttp.RequestCtx) {
 	var body registerRequestBody
 	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {
@@ -97,6 +100,8 @@ type loginRequestBody struct {
 	Password string `json:"password"`
 }
 
+// Login handles the login request. It firstly checks that the a user with the given username does exist
+// and then checks that user's hash using bcrypt to the password given in the form.
 func Login(ctx *fasthttp.RequestCtx) {
 	var body loginRequestBody
 	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {

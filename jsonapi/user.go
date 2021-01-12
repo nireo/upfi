@@ -65,6 +65,8 @@ type updatePasswordBody struct {
 	NewPassword     string `json:"newPassword"`
 }
 
+// UpdatePassword is a handler that takes in the user's password and a new password and then updates the user's
+// password with the new password. Also does all the needed checking on the new password and checks the old password.
 func UpdatePassword(ctx *fasthttp.RequestCtx) {
 	user, err := models.FindOneUser(&models.User{Username: string(ctx.Request.Header.Peek("username"))})
 	if err != nil {

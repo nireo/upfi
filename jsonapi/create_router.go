@@ -6,6 +6,8 @@ import (
 	"github.com/nireo/upfi/templateapi"
 )
 
+// CreateJSONRouter creates a fasthttp router which contains all the json handlers. Some of the json handlers
+// are pretty much the same as the templateapi only exception being that data is given in json form.
 func CreateJSONRouter() *fasthttprouter.Router {
 	router := fasthttprouter.New()
 	router.POST("/api/register", Register)

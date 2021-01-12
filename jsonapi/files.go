@@ -15,6 +15,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// GetSingleFile returns the database entry, which contains data about a file. The user
+// needs to provide a file id as a query. Also the files are kept private, so you need to own the file.
+// Also the route is protected, so that the security token is checked before calling this handler.
 func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
@@ -40,6 +43,8 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, file)
 }
 
+// UploadFile handles the logic of uploading a file from the upload file form.
+// Also the route is protected, so that the security token is checked before calling this handler.
 func UploadFile(ctx *fasthttp.RequestCtx) {
 	header, err := ctx.FormFile("file")
 	if err != nil {
@@ -127,6 +132,9 @@ type updateFileBody struct {
 	Description string `json:"description"`
 }
 
+// UpdateFile is http handler which takes a file id as a query parameter and checks for the file's ownership.
+// This handler can be used to update file title and description.
+// Also the route is protected, so that the security token is checked before calling this handler.
 func UpdateFile(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	user, err := models.FindOneUser(&models.User{Username: username})
@@ -177,6 +185,9 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, file)
 }
 
+// GetUserFiles returns all the files that are related to the user who is requesting this
+// handler. Then handler finds all the related files and constructs a simple json response.
+// Also the route is protected, so that the security token is checked before calling this handler.
 func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
@@ -192,6 +203,9 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, files)
 }
 
+// DeleteFile is a handler that deletes a file owned by the user. The handler takes a file id as a query parameter
+// and then does checking on the ownership of the file.
+// Also the route is protected, so that the security token is checked before calling this handler.
 func DeleteFile(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	user, err := models.FindOneUser(&models.User{Username: username})

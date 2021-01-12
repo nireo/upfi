@@ -42,8 +42,8 @@ func main() {
 	}
 
 	if len(os.Args) == 2 && os.Args[1] == "json" {
-		jsonapi.RunJSONApi(serverPort)
+		jsonapi.RunJSONAPI(serverPort)
 	} else {
-		templateapi.SetupTemplateApi(serverPort)
+		templateapi.SetupTemplateAPI(serverPort)
 	}
 }

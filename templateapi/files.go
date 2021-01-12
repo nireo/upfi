@@ -113,6 +113,8 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	ctx.Redirect("/files", fasthttp.StatusMovedPermanently)
 }
 
+// DownloadFile handler lets the user download a file. It also checks that the user owns the file he is trying download.
+// Also the route is protected, so that the security token is checked before calling this handler.
 func DownloadFile(ctx *fasthttp.RequestCtx) {
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
@@ -145,7 +147,7 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 // needs to provide a file id as a query. Also the files are kept private, so you need to own the file.
 // Also the route is protected, so that the security token is checked before calling this handler.
 func GetSingleFile(ctx *fasthttp.RequestCtx) {
-	// get the user's username which was appended to the request header
+	// Get the user's username which was appended to the request header
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
 
@@ -180,7 +182,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-type FilePage struct {
+type filePage struct {
 	PageTitle string
 	Files     []models.File
 }
@@ -206,7 +208,7 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 
 	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
 	// construct a struct which contains the data we will give to the html template.
-	data := FilePage{
+	data := filePage{
 		PageTitle: "Your files",
 		Files:     files,
 	}
