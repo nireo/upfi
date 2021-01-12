@@ -13,6 +13,7 @@ Required fields:
 -   `master`
 
 No optional fields
+
 No query parameters.
 
 ### `POST /api/login`
@@ -25,6 +26,7 @@ Required fields
 -   `password`
 
 No optional fields
+
 No query parameters.
 
 ### `POST A /api/file`
@@ -34,6 +36,7 @@ Upload a file for hosting. (This route doesn't take JSON but a multipart form)
 Required fields
 
 -   `master`
+-   `file` (multipart file)
 
 Optional fields
 
@@ -44,7 +47,9 @@ Optional fields
 Get all of your files.
 
 No required fields
+
 No optional fields
+
 No query parameters.
 
 ### `GET A /api/file`
@@ -52,16 +57,81 @@ No query parameters.
 Get more information about one file with a id
 
 No required fields
+
 No optional fields
 
 Query parameters:
 
 -   `file`
 
-### `GET /api/me`
+### `GET A /api/me`
 
 Get information about the user corresponding to the auth token.
 
 No required fields
+
 No optional fields
+
 No query parameters.
+
+### `PATCH A /api/file`
+
+Update some fields on your file
+
+No required fields
+
+Optional fields
+
+-   `title`
+-   `description`
+
+Query parameters
+
+-   `file`
+
+### `DELETE A /api/file`
+
+Deletes a file from hosting.
+
+No required fields
+
+No optional fields
+
+Query parameters
+
+-   `file`
+
+### `DELETE A /api/me`
+
+Deletes the account user who requests this.
+
+No required fields
+
+No optional fields
+
+No query parameters.
+
+### `PATCH A /api/password`
+
+Update users password.
+
+Required fields
+
+-   `currentPassword`
+-   `newPassword`
+
+No optional fields
+
+No query parameters.
+
+### `PATCH A /api/settings`
+
+Updates the settings of a user.
+
+Required fields
+
+-   `username`
+
+No optional fields
+
+No query parameters

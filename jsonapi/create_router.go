@@ -21,7 +21,7 @@ func CreateJSONRouter() *fasthttprouter.Router {
 
 	router.PATCH("/api/file", middleware.CheckAuthentication(UpdateFile))
 
-	router.DELETE("/api/username", middleware.CheckAuthentication(templateapi.DeleteUser))
+	router.DELETE("/api/me", middleware.CheckAuthentication(templateapi.DeleteUser))
 	router.PATCH("/api/password", middleware.CheckAuthentication(UpdatePassword))
 	router.PATCH("/api/settings", middleware.CheckAuthentication(HandleSettingsChange))
 
