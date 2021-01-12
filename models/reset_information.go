@@ -31,7 +31,7 @@ func ResetInformation() {
 		db.Delete(file)
 	}
 
-	// Create a new emtpy files folder
+	// Create a new empty files folder
 	if err := os.Mkdir("./files", 0755); err != nil {
 		log.Fatal("Could not setup ./files folder")
 	}

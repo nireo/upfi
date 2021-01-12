@@ -168,7 +168,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
-		// We return not found, since we don't want the unauthorized user to know about the file's existance.
+		// We return a not found error, since we don't want the unauthorized user to know about the file's existence.
 		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
@@ -247,7 +247,7 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
 		// Return a not found error, since we don't want the unauthorized user to know about the
-		// file's existance
+		// file's existence
 		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}

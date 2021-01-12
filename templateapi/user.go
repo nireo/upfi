@@ -14,7 +14,7 @@ import (
 // Also does checking if the user is logged in. After all the checking serve a html template, which is used
 // to display current user configuration.
 func ServeSettingsPage(ctx *fasthttp.RequestCtx) {
-	// Set the right Content-Type so that they html renders corretly.
+	// Set the right Content-Type so that the html renders correctly.
 	ctx.Response.Header.Set("Content-Type", "text/html")
 
 	// The auth token middleware appends the user's username in to the request header, if the

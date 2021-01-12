@@ -17,7 +17,7 @@ func main() {
 		log.Fatal("Could not load the env file")
 	}
 
-	// Store most of the enviroment varialbes into normal variables, so that the database connection
+	// Store most of the environment varialbes into normal variables, so that the database connection
 	// line becomes more easier to read.
 	databaseConfig := &models.DatabaseConfig{
 		User: os.Getenv("db_username"),
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Use a library function to setup the database connection. Also migrates the models
-	// and sets a database constanst in the lib package.
+	// and sets a global database varialbe in the lib package.
 	if err := models.ConnectToDatabase(databaseConfig); err != nil {
 		log.Fatal(err)
 	}

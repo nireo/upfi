@@ -42,7 +42,7 @@ func (file *File) Delete(userID string) error {
 	return nil
 }
 
-// FindOneFile takes a interface{} as an arguement and returns a pointer to a file,
+// FindOneFile takes a query interface{} as a parameter and returns a pointer to a file,
 // if it is found.
 func FindOneFile(condition interface{}) (*File, error) {
 	db := lib.GetDatabase()

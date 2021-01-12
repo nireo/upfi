@@ -139,7 +139,6 @@ func Login(ctx *fasthttp.RequestCtx) {
 	// Check that a user with the given username actually exists.
 	user, err := models.FindOneUser(&models.User{Username: username})
 	if err != nil {
-		// Return a forbiden, since we don't want to tell another user, if some user has an account.
 		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}

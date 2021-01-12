@@ -17,4 +17,3 @@ func FindCookieInResponse(cookie string, resp *http.Response) error {
 
 	return errors.New("could not find cookie in request")
 }
-
