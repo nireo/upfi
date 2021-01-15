@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/nireo/upfi/jsonapi"
 	"log"
 	"os"
+
+	"github.com/nireo/upfi/jsonapi"
 
 	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/models"
