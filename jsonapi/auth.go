@@ -92,7 +92,8 @@ func Register(ctx *fasthttp.RequestCtx) {
 	cookie.SetKey("token")
 	cookie.SetValue(token)
 	ctx.Response.Header.SetCookie(&cookie)
-	ctx.Response.SetStatusCode(fasthttp.StatusOK)
+
+	lib.WriteResponseJSON(ctx, fasthttp.StatusOK, newUser)
 }
 
 type loginRequestBody struct {

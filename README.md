@@ -53,6 +53,12 @@ Or just to the run the service:
 go run main.go
 ```
 
+## Running the JSON API
+
+To run the JSON API you need to run the main file with a given argument. If the `json` argument is not provided the service is started using the template version which is more lightweight.
+
+The JSON API can be used as a base to build your own client with. I'm planning on creating a react client for upfi that will take a lot of time to finish.
+
 ## Reset information
 
 There is the functionality to remove all files and all user data. This can be done by simply running:

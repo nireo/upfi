@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/nireo/upfi/jsonapi"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/templateapi"
 	"github.com/valyala/fasthttp"

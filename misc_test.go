@@ -1,10 +1,9 @@
-package main
+package templateapi
 
 import (
 	"net/http"
 	"testing"
 
-	"github.com/nireo/upfi/templateapi"
 	"github.com/valyala/fasthttp"
 )
 
@@ -16,7 +15,7 @@ func TestHomeRoute(t *testing.T) {
 		return
 	}
 
-	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
+	res, err := ServeRouter(CreateRouter().Handler, r)
 	if err != nil {
 		t.Error(err)
 		return
