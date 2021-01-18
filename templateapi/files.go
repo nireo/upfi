@@ -3,15 +3,16 @@ package templateapi
 import (
 	"bytes"
 	"fmt"
-	"github.com/nireo/upfi/crypt"
-	"github.com/nireo/upfi/lib"
-	"github.com/nireo/upfi/models"
-	"github.com/valyala/fasthttp"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"github.com/nireo/upfi/crypt"
+	"github.com/nireo/upfi/lib"
+	"github.com/nireo/upfi/models"
+	"github.com/valyala/fasthttp"
 )
 
 // ServeUploadPage serves the requester a upload form, in which the user can upload files to their account.
@@ -138,9 +139,31 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	// use the
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
+		return
+	}
+
+	if len(form.Value["master"]) == 0 {
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
+		return
+	}
+
 	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, file.UUID, file.Extension)
 	ctx.Response.Header.Set("Content-Type", file.MIME)
+
+	tempUUID := lib.GenerateUUID()
+	tempPath := fmt.Sprintf("./temp/%s%s", tempUUID, file.Extension)
+	crypt.DecryptToDst(tempPath, path, form.Value["master"][0])
+
 	ctx.Response.SendFile(path)
+
+	if err := os.Remove(tempPath); err != nil {
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
+		return
+	}
 }
 
 // GetSingleFile returns the database entry, which contains data about a file to the user. The user
