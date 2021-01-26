@@ -1,15 +1,13 @@
-package lib
+package models
 
 import (
 	"errors"
-
-	"github.com/nireo/upfi/models"
 )
 
 // FindFileAndCheckOwnership is just a shortened version for a very common piece of code found in
 // most of the file related handlers. And I thought this would make it more clear
-func FindFileAndCheckOwnership(userID uint, fileID string) (*models.File, error) {
-	file, err := models.FindOneFile(&models.File{UUID: fileID})
+func FindFileAndCheckOwnership(userID uint, fileID string) (*File, error) {
+	file, err := FindOneFile(&File{UUID: fileID})
 	if err != nil {
 		return nil, err
 	}

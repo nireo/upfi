@@ -29,7 +29,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	}
 
 	fileID := ctx.UserValue("file").(string)
-	file, err := lib.FindFileAndCheckOwnership(user.ID, fileID)
+	file, err := models.FindFileAndCheckOwnership(user.ID, fileID)
 	if err != nil {
 		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
 		return
@@ -161,7 +161,7 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 	fileID := ctx.UserValue("file").(string)
 	db := lib.GetDatabase()
 
-	file, err := lib.FindFileAndCheckOwnership(user.ID, fileID)
+	file, err := models.FindFileAndCheckOwnership(user.ID, fileID)
 	if err != nil {
 		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
 		return
@@ -204,7 +204,8 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	file, err := lib.FindFileAndCheckOwnership(user.ID, file.UUID)
+	fileID := ctx.UserValue("file").(string)
+	file, err := models.FindFileAndCheckOwnership(user.ID, fileID)
 	if err != nil {
 		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
 		return
