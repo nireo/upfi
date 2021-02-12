@@ -81,6 +81,7 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	// io.Reader. This is needed to read the bytes in the file.
 	multipartFile, err := header.Open()
 	if err != nil {
+		fmt.Println("error 84")
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}
@@ -102,7 +103,7 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	// Create a buffer to store the header of the file in
 	fileHeader := make([]byte, 512)
 	// Copy the headers into the FileHeader buffer
-	if _, err := multipartFile.Read(fileHeader); err != nil {
+	if _, err := multipartFile.Read(fileHeader); err != nil && err != io.EOF {
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}

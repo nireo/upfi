@@ -32,6 +32,10 @@ func CheckAuthentication(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 func MoveIfAuthenticated(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		cookie := ctx.Request.Header.Cookie("token")
+		if string(cookie) == "" {
+			h(ctx)
+			return
+		}
 
 		username, err := lib.ValidateToken(string(cookie))
 		if err != nil {
