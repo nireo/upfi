@@ -44,15 +44,15 @@
     </nav>
     <div class="container">
       <h1>{{ .PageTitle }}</h1>
-      <table style="width:100%">
+      <table style="width: 100%">
         <tr>
           <th>Filename</th>
           <th>Size</th>
           <th>Uploaded</th>
         </tr>
         {{range .Files}}
-        <tr style="margin-top: 1rem;">
-          <td><a href="/file?file={{ .UUID }}">{{ .Filename }}</a></td>
+        <tr style="margin-top: 1rem">
+          <td><a href="/file/{{ .UUID }}">{{ .Filename }}</a></td>
           <td>{{ .Size }}</td>
           <td>{{ .CreatedAt }}</td>
           <td>

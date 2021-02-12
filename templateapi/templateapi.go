@@ -25,6 +25,7 @@ func SetupTemplateAPI(port string) {
 
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
 	router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))
+	router.POST("/download/:file", middleware.CheckAuthentication(DownloadFile))
 	router.GET("/file/:file", middleware.CheckAuthentication(GetSingleFile))
 	router.GET("/files", middleware.CheckAuthentication(GetUserFiles))
 	router.PATCH("/file/:file", middleware.CheckAuthentication(UpdateFile))

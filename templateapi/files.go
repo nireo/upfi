@@ -140,14 +140,15 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// use the
 	form, err := ctx.MultipartForm()
 	if err != nil {
+		fmt.Println(err)
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	if len(form.Value["master"]) == 0 {
+		fmt.Println(err)
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
@@ -157,9 +158,12 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 
 	tempUUID := lib.GenerateUUID()
 	tempPath := fmt.Sprintf("./temp/%s%s", tempUUID, file.Extension)
-	crypt.DecryptToDst(tempPath, path, form.Value["master"][0])
+	if err := crypt.DecryptToDst(tempPath, path, form.Value["master"][0]); err != nil {
+		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
+		return
+	}
 
-	ctx.Response.SendFile(path)
+	ctx.Response.SendFile(tempPath)
 
 	if err := os.Remove(tempPath); err != nil {
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
@@ -178,6 +182,7 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	// Find the user's database entry who is requesting this handler.
 	var user models.User
 	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		fmt.Print("error in user")
 		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
@@ -186,12 +191,14 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 	fileID := ctx.UserValue("file").(string)
 	var file models.File
 	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
+		fmt.Print("error in db")
 		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return
 	}
 
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
+		fmt.Println("error 196")
 		// We return a not found error, since we don't want the unauthorized user to know about the file's existence.
 		ErrorPageHandler(ctx, lib.NotFoundErrorPage)
 		return

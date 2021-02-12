@@ -45,22 +45,27 @@
     <div class="container mt-3">
       <h2>File {{.Filename}}</h2>
       <p class="text-muted">{{.Description}}</p>
-      <div style="display:flex;">
-        <form method="post" action="/download?file={{ .UUID }}">
+      <div style="display: flex">
+        <form
+          enctype="multipart/form-data"
+          method="post"
+          action="/download/{{ .UUID }}"
+        >
+          <input type="password" name="master" />
           <button type="submit" class="size-sm btn btn-info">Download</button>
         </form>
         <form
           method="post"
           action="/delete?file={{ .UUID }}"
-          style="margin-left:0.5rem;"
+          style="margin-left: 0.5rem"
         >
           <button type="submit" class="size-sm btn btn-danger">Delete</button>
         </form>
       </div>
 
-      <hr style="margin-top:2rem;margin-bottom:2rem;" />
+      <hr style="margin-top: 2rem; margin-bottom: 2rem" />
       <h4>File information</h4>
-      <table style="width:100%">
+      <table style="width: 100%">
         <tr>
           <th>Filename</th>
           <th>Size</th>
