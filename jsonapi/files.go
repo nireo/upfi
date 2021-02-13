@@ -221,3 +221,53 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusNoContent)
 }
+
+type downloadFileBody struct {
+	MasterPassword string `json:"master"`
+}
+
+func DownloadFile(ctx *fasthttp.RequestCtx) {
+	username := string(ctx.Request.Header.Peek("username"))
+	db := lib.GetDatabase()
+
+	var user models.User
+	if err := db.Where(&models.User{Username: username}).First(&user).Error; err != nil {
+		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
+		return
+	}
+
+	fileID := ctx.UserValue("file").(string)
+	var file models.File
+	if err := db.Where(&models.File{UUID: fileID}).First(&file).Error; err != nil {
+		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
+		return
+	}
+
+	if user.ID != file.UserID {
+		ServeErrorJSON(ctx, lib.NotFoundErrorPage)
+		return
+	}
+
+	var body downloadFileBody
+	if err := json.Unmarshal(ctx.Request.Body(), &body); err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, file.UUID, file.Extension)
+	ctx.Response.Header.Set("Content-Type", file.MIME)
+
+	tempUUID := lib.GenerateUUID()
+	tempPath := fmt.Sprintf("./temp/%s%s", tempUUID, file.Extension)
+	if err := crypt.DecryptToDst(tempPath, path, body.MasterPassword); err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+
+	ctx.Response.SendFile(tempPath)
+
+	if err := os.Remove(tempPath); err != nil {
+		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
+		return
+	}
+}

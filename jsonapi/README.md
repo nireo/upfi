@@ -8,13 +8,11 @@ Register a new account on the service.
 
 Required fields:
 
--   `username`
--   `password`
--   `master`
+- `username`
+- `password`
+- `master`
 
 No optional fields
-
-No query parameters.
 
 ### `POST /api/login`
 
@@ -22,12 +20,10 @@ Login to your created user.
 
 Required fields
 
--   `username`
--   `password`
+- `username`
+- `password`
 
 No optional fields
-
-No query parameters.
 
 ### `POST A /api/file`
 
@@ -35,12 +31,12 @@ Upload a file for hosting. (This route doesn't take JSON but a multipart form)
 
 Required fields
 
--   `master`
--   `file` (multipart file)
+- `master`
+- `file` (multipart file)
 
 Optional fields
 
--   `description`
+- `description`
 
 ### `GET A /api/files`
 
@@ -50,19 +46,13 @@ No required fields
 
 No optional fields
 
-No query parameters.
-
-### `GET A /api/file`
+### `GET A /api/file/:fileId`
 
 Get more information about one file with a id
 
 No required fields
 
 No optional fields
-
-Query parameters:
-
--   `file`
 
 ### `GET A /api/me`
 
@@ -72,9 +62,7 @@ No required fields
 
 No optional fields
 
-No query parameters.
-
-### `PATCH A /api/file`
+### `PATCH A /api/file/:fileId`
 
 Update some fields on your file
 
@@ -82,24 +70,16 @@ No required fields
 
 Optional fields
 
--   `title`
--   `description`
+- `title`
+- `description`
 
-Query parameters
-
--   `file`
-
-### `DELETE A /api/file`
+### `DELETE A /api/file/:fileId`
 
 Deletes a file from hosting.
 
 No required fields
 
 No optional fields
-
-Query parameters
-
--   `file`
 
 ### `DELETE A /api/me`
 
@@ -109,20 +89,26 @@ No required fields
 
 No optional fields
 
-No query parameters.
-
 ### `PATCH A /api/password`
 
 Update users password.
 
 Required fields
 
--   `currentPassword`
--   `newPassword`
+- `currentPassword`
+- `newPassword`
 
 No optional fields
 
-No query parameters.
+### `POST A /api/download/:fileId`
+
+Lets the user download a file from the server.
+
+Required fields
+
+- `master` (the file encryption master password)
+
+No optional fields
 
 ### `PATCH A /api/settings`
 
@@ -130,8 +116,6 @@ Updates the settings of a user.
 
 Required fields
 
--   `username`
+- `username`
 
 No optional fields
-
-No query parameters
