@@ -53,6 +53,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 
 	if !lib.IsUsernameValid(username) || !lib.IsPasswordValid(password) || !lib.IsPasswordValid(masterPass) {
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
+		return
 	}
 
 	// Check that the username is unique, and if there exists a user with that name return a conflicting status.
@@ -132,9 +133,14 @@ func Login(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// Store the form fields in variables, so the code is cleaner.
 	username := form.Value["username"][0]
 	password := form.Value["password"][0]
+
+	// Check that poth of the fields are valid so we don't need to query the database for nothing.
+	if !lib.IsUsernameValid(username) || !lib.IsPasswordValid(password) {
+		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
+		return
+	}
 
 	// Check that a user with the given username actually exists.
 	user, err := models.FindOneUser(&models.User{Username: username})

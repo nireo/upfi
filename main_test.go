@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/nireo/upfi/middleware"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/nireo/upfi/middleware"
 
 	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/models"

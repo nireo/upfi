@@ -8,7 +8,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/nireo/upfi/jsonapi"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/templateapi"
 	"github.com/valyala/fasthttp"
@@ -42,57 +41,42 @@ func TestNewTestUser(t *testing.T) {
 	}
 }
 
-// TestLoginRouteGet tests if going to the login handler page returns a text/html content page with a successful status
-// code.
-func TestLoginRouteGet(t *testing.T) {
-	r, err := http.NewRequest("GET", "http://test/login", nil)
-	if err != nil {
-		t.Error(err)
+// TestGetPages checks if there is html returned for the 'login' and 'register' pages.
+func TestGetPages(t *testing.T) {
+	tests := []string{
+		"login",
+		"register",
 	}
 
-	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
-	if err != nil {
-		t.Error(err)
+	for _, testRoute := range tests {
+		r, err := http.NewRequest("GET", "http://test/"+testRoute, nil)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
+		if err != nil {
+			t.Errorf("error creating request to %s, err: %s", testRoute, err)
+			continue
+		}
+
+		if res.StatusCode != fasthttp.StatusOK {
+			t.Errorf("got the wrong status code for %s. want=200, got=%d", testRoute, res.StatusCode)
+			continue
+		}
+
+		if res.Header.Get("Content-Type") != "text/html" {
+			t.Errorf("Wrong Content-Type for %s, wanted 'text/html', got=%s",
+				testRoute, res.Header.Get("Content-Type"))
+		}
 	}
 
-	if res.StatusCode != fasthttp.StatusOK {
-		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
-	}
-
-	if res.Header.Get("Content-Type") != "text/html" {
-		t.Errorf("Wrong Content-Type, wanted 'text/html' got: %s", res.Header.Get("Content-Type"))
-	}
-}
-
-// TestRegisterRouteGet tests if going to the register handler page returns a text/html content page with a successful
-// status code.
-func TestRegisterRouteGet(t *testing.T) {
-	r, err := http.NewRequest("GET", "http://test/register", nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	if res.StatusCode != fasthttp.StatusOK {
-		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
-		return
-	}
-
-	if res.Header.Get("Content-Type") != "text/html" {
-		t.Errorf("Wrong Content-Type, wanted 'text/html' got: %s", res.Header.Get("Content-Type"))
-		return
-	}
 }
 
 // TestRegister first tests if account creation works through http and then tests
 // if removing user using different helper functions works.
-func TestRegister(t *testing.T) {
+func TestRegisterComprehensive(t *testing.T) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -112,8 +96,7 @@ func TestRegister(t *testing.T) {
 	}
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	_, err = templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
-	if err != nil {
+	if _, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r); err != nil {
 		t.Error(err)
 		return
 	}
@@ -138,126 +121,114 @@ func TestRegister(t *testing.T) {
 	}
 }
 
-// TestRegisterInvalidInput tests the register handler with different edge case input that should be handeled properly
-// and the handler should return the fasthttp.StatusBadRequest which is 400.
-func TestRegisterInvalidInput(t *testing.T) {
-	// Without sending any data
-	r, err := http.NewRequest(fasthttp.MethodPost, "http://test/register", nil)
-	if err != nil {
-		t.Error(err)
-		return
+func TestRegisterRouteInputs(t *testing.T) {
+	// define test cases like this so we don't need multiple functions to basically tests the same thing.
+	testCases := []struct {
+		//[0] username | [1] password | [2] master
+		inputs         []string
+		expectedStatus int
+	}{
+		{inputs: []string{"", "", ""}, expectedStatus: fasthttp.StatusBadRequest},
+		{inputs: []string{"registertest1", "pas", "2short"}, expectedStatus: fasthttp.StatusBadRequest},
+		{inputs: []string{"registertest2", "2short", "reallysecretpas"}, expectedStatus: fasthttp.StatusBadRequest},
+		{inputs: []string{"2s", "secretpass", "secretpass"}, expectedStatus: fasthttp.StatusBadRequest},
+
+		// These are valid request inputs, but the expectedStatus is 401, because the user is redirected to the
+		// /files page, and since the request doesn't have the authorization cookie, the user cannot access the
+		// page. But if the request shows this status it means the registeration process worked according to plan.
+		{inputs: []string{"registertest3", "secretpass", "secretpass"}, expectedStatus: fasthttp.StatusUnauthorized},
 	}
 
-	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	for testNum, testCase := range testCases {
+		// Create request body from test case inputs
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
 
-	if res.StatusCode != fasthttp.StatusBadRequest {
-		t.Errorf("Wrong status code, wanted 400 got: %d", res.StatusCode)
-		return
-	}
+		_ = writer.WriteField("username", testCase.inputs[0])
+		_ = writer.WriteField("password", testCase.inputs[1])
+		_ = writer.WriteField("master", testCase.inputs[2])
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
+		if err := writer.Close(); err != nil {
+			t.Error(err)
+			return
+		}
 
-	_ = writer.WriteField("master", "secret")
-	_ = writer.WriteField("username", "user")
-	_ = writer.WriteField("password", "reallysecretpassword")
+		// Create & send the request to the server.
+		r, err := http.NewRequest(fasthttp.MethodPost, "http://test/register", body)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		r.Header.Set("Content-Type", writer.FormDataContentType())
 
-	if err := writer.Close(); err != nil {
-		t.Error(err)
-		return
-	}
+		res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 
-	r2, err := http.NewRequest(fasthttp.MethodPost, "http://test/register", body)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	r.Header.Set("Content-Type", writer.FormDataContentType())
-
-	res2, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r2)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	if res2.StatusCode != fasthttp.StatusBadRequest {
-		t.Errorf("Wrong status code, wanted 401 got: %d", res.StatusCode)
-		return
-	}
-}
-
-// TestLoginInvalidInput tests for problems with different types of edge cases for
-// the login route.
-func TestLoginInvalidInput(t *testing.T) {
-	// Without sending any data
-	r, err := http.NewRequest(fasthttp.MethodPost, "http://test/login", nil)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	if res.StatusCode != fasthttp.StatusBadRequest {
-		t.Errorf("Wrong status code, wanted 400 got: %d", res.StatusCode)
-		return
+		if res.StatusCode != testCase.expectedStatus {
+			t.Errorf("wrong statuscode on test %d. want=%d, got=%d", testNum+1, testCase.expectedStatus, res.StatusCode)
+			return
+		}
 	}
 }
 
-// TestLoginRoutePost tests a login into the login page. We add a token to the request ourselves, since for some reason
-// the http.Response doesn't include a token. The fasthttp.StatusOK check if for testing if the user was successfully
-// redirected to the files page.
-func TestLoginRoutePost(t *testing.T) {
-	// create a new user
-	token, err := templateapi.NewTestUser("logintest", "password")
-	if err != nil {
+func TestLoginInputs(t *testing.T) {
+	// create a new user so we can test if logging in is possible
+	username, password := "realuser123", "password123"
+	if _, err := templateapi.NewTestUser(username, password); err != nil {
 		t.Error(err)
 		return
 	}
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
+	testCases := []struct {
+		//[0] username | [1] password
+		inputs         []string
+		expectedStatus int
+	}{
+		{inputs: []string{"", ""}, expectedStatus: fasthttp.StatusBadRequest},
 
-	_ = writer.WriteField("username", "logintest")
-	_ = writer.WriteField("password", "password")
-
-	if err := writer.Close(); err != nil {
-		t.Error(err)
-		return
+		// This request is the only valid request, and the unauthorized status just means we were moved
+		// to the /files page and we didn't have a token. But it still means that the login process worked.
+		{inputs: []string{"realuser123", "password123"}, expectedStatus: fasthttp.StatusUnauthorized},
+		{inputs: []string{"realuser123", "321password"}, expectedStatus: fasthttp.StatusForbidden},
+		{inputs: []string{"notrealuser123", "secretpass"}, expectedStatus: fasthttp.StatusNotFound},
 	}
 
-	r, err := http.NewRequest(fasthttp.MethodPost, "http://test/login", body)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	r.Header.Set("Content-Type", writer.FormDataContentType())
-	r.AddCookie(&http.Cookie{Name: "token", Value: token})
+	for testNum, testCase := range testCases {
+		// Create request body from test case inputs
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
 
-	res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
-	if err != nil {
-		t.Error(err)
-		return
+		_ = writer.WriteField("username", testCase.inputs[0])
+		_ = writer.WriteField("password", testCase.inputs[1])
+
+		if err := writer.Close(); err != nil {
+			t.Error(err)
+			return
+		}
+
+		// Create & send the request to the server.
+		r, err := http.NewRequest(fasthttp.MethodPost, "http://test/login", body)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		r.Header.Set("Content-Type", writer.FormDataContentType())
+
+		res, err := templateapi.ServeRouter(templateapi.CreateRouter().Handler, r)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if res.StatusCode != testCase.expectedStatus {
+			t.Errorf("wrong statuscode on test %d. want=%d, got=%d", testNum+1, testCase.expectedStatus, res.StatusCode)
+			return
+		}
 	}
 
-	// We are directed to the /files page, so we check if redirecting us was successful.
-	if res.StatusCode != fasthttp.StatusOK {
-		t.Errorf("Wrong status code, wanted 200 got: %d", res.StatusCode)
-		return
-	}
-
-	// check that the content type matches that of the files page.
-	if res.Header.Get("Content-Type") != "text/html" {
-		t.Errorf("Wrong content type, wanted 'text/html' got: %s", res.Header.Get("Content-Type"))
-	}
 }
 
 // RedirectIfToken checks if the routes '/login' and '/register' redirect when the user enters them when owning a auth
