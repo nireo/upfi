@@ -31,7 +31,7 @@ func ServeSettingsPage(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Serve the template file, with the user information we loaded before.
-	tmpl := template.Must(template.ParseFiles("./static/settings_template.html"))
+	tmpl := template.Must(template.ParseFiles("./templates/settings_template.html"))
 	if err := tmpl.Execute(ctx, nil); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
