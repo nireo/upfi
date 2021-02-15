@@ -33,7 +33,7 @@ func (file *File) Serialize() lib.JSON {
 func (file *File) Delete(userID string) error {
 	db := lib.GetDatabase()
 
-	if err := os.Remove("./files/" + userID + "/" + file.Filename); err != nil {
+	if err := os.Remove(lib.AddRootToPath("files/") + userID + "/" + file.Filename); err != nil {
 		return err
 	}
 

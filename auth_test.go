@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/nireo/upfi/lib"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -32,7 +33,7 @@ func TestNewTestUser(t *testing.T) {
 		t.Error("Could not find user, err: ", err)
 	}
 
-	if _, err := os.Stat("./files/" + user.UUID); os.IsNotExist(err) {
+	if _, err := os.Stat(lib.AddRootToPath("files/") + user.UUID); os.IsNotExist(err) {
 		t.Error("A file folder wasn't created for the user", err)
 	}
 
@@ -109,7 +110,7 @@ func TestRegisterComprehensive(t *testing.T) {
 	}
 
 	// check that a folder has been created
-	if _, err := os.Stat("./files/" + user.UUID); os.IsNotExist(err) {
+	if _, err := os.Stat(lib.AddRootToPath("files/") + user.UUID); os.IsNotExist(err) {
 		t.Error("A file folder wasn't created for the user", err)
 		return
 	}

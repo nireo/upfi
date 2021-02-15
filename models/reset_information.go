@@ -13,7 +13,7 @@ import (
 // database entries.
 func ResetInformation() {
 	startingTime := time.Now()
-	if err := os.RemoveAll("./files/"); err != nil {
+	if err := os.RemoveAll(lib.AddRootToPath("files/")); err != nil {
 		log.Fatal(err)
 	}
 	db := lib.GetDatabase()
@@ -32,8 +32,8 @@ func ResetInformation() {
 	}
 
 	// Create a new empty files folder
-	if err := os.Mkdir("./files", 0755); err != nil {
-		log.Fatal("Could not setup ./files folder")
+	if err := os.Mkdir(lib.AddRootToPath("files"), 0755); err != nil {
+		log.Fatal("Could not setup files folder")
 	}
 
 	log.Printf("Successfully removed all data. took: %v", time.Since(startingTime))

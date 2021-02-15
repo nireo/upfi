@@ -63,7 +63,7 @@ func NewTestUser(username, password string) (string, error) {
 		UUID:                 lib.GenerateUUID(),
 	}
 
-	if err := os.Mkdir("./files/"+newUser.UUID, os.ModePerm); err != nil {
+	if err := os.Mkdir(lib.AddRootToPath("files/")+newUser.UUID, os.ModePerm); err != nil {
 		return "", errors.New("could not create an user file directory")
 	}
 

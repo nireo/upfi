@@ -84,7 +84,8 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	// Define a path, where the file should be stored. Even though we encrypt the file, we
 	// still want to keep the extension, since windows for example does not work without proper file
 	// types.
-	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
+	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
+		user.UUID, newFileEntry.UUID, newFileEntry.Extension)
 
 	// Read the file from the header. This is done because we need *multipart.File, which implements
 	// io.Reader. This is needed to read the bytes in the file.
@@ -211,7 +212,7 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if err := os.Remove("./files/" + user.UUID + "/" + file.UUID + file.Extension); err != nil {
+	if err := os.Remove(lib.AddRootToPath("files/") + user.UUID + "/" + file.UUID + file.Extension); err != nil {
 		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
 	}
@@ -254,11 +255,12 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, file.UUID, file.Extension)
+	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
+		user.UUID, file.UUID, file.Extension)
 	ctx.Response.Header.Set("Content-Type", file.MIME)
 
 	tempUUID := lib.GenerateUUID()
-	tempPath := fmt.Sprintf("./temp/%s%s", tempUUID, file.Extension)
+	tempPath := fmt.Sprintf("%s/%s%s", lib.AddRootToPath("temp"), tempUUID, file.Extension)
 	if err := crypt.DecryptToDst(tempPath, path, body.MasterPassword); err != nil {
 		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return

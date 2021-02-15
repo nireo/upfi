@@ -22,7 +22,7 @@ func ServeUploadPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	ctx.SendFile("./static/upload.html")
+	ctx.SendFile(lib.AddRootToPath("static/upload.html"))
 }
 
 // UploadFile handles the logic of uploading a file from the upload file form.
@@ -75,7 +75,8 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 	// Define a path, where the file should be stored. Even though we encrypt the file, we
 	// still want to keep the extension, since windows for example does not work without proper file
 	// types.
-	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, newFileEntry.UUID, newFileEntry.Extension)
+	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
+		user.UUID, newFileEntry.UUID, newFileEntry.Extension)
 
 	// Read the file from the header. This is done because we need *multipart.File, which implements
 	// io.Reader. This is needed to read the bytes in the file.
@@ -153,11 +154,13 @@ func DownloadFile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	path := fmt.Sprintf("./files/%s/%s%s", user.UUID, file.UUID, file.Extension)
+	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
+		user.UUID, file.UUID, file.Extension)
 	ctx.Response.Header.Set("Content-Type", file.MIME)
 
 	tempUUID := lib.GenerateUUID()
-	tempPath := fmt.Sprintf("./temp/%s%s", tempUUID, file.Extension)
+	tempPath := fmt.Sprintf("%s/%s%s", lib.AddRootToPath("temp"),
+		tempUUID, file.Extension)
 	if err := crypt.DecryptToDst(tempPath, path, form.Value["master"][0]); err != nil {
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
@@ -206,7 +209,8 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 
 	// Display the user with the file's information, this template also includes the option to download a file.
 	ctx.Response.Header.Set("Content-Type", "text/html")
-	tmpl := template.Must(template.ParseFiles("./templates/single_file_template.html"))
+	tmpl := template.Must(template.ParseFiles(
+		lib.AddRootToPath("templates/single_file_template.html")))
 	if err := tmpl.Execute(ctx, file); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
@@ -237,7 +241,8 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	var files []models.File
 	db.Where(&models.File{UserID: user.ID}).Find(&files)
 
-	tmpl := template.Must(template.ParseFiles("./templates/files_template.html"))
+	tmpl := template.Must(template.ParseFiles(
+		lib.AddRootToPath("templates/files_template.html")))
 	// construct a struct which contains the data we will give to the html template.
 	data := filePage{
 		PageTitle: "Your files",
@@ -284,7 +289,7 @@ func DeleteFile(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Remove the file, if the file cannot be removed the return a internal server error to the user.
-	if err := os.Remove("./files/" + user.UUID + "/" + fmt.Sprintf("%s%s", file.UUID, file.Extension)); err != nil {
+	if err := os.Remove(lib.AddRootToPath("files/") + user.UUID + "/" + fmt.Sprintf("%s%s", file.UUID, file.Extension)); err != nil {
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}

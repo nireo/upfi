@@ -13,7 +13,7 @@ func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	ctx.SendFile("./static/register.html")
+	ctx.SendFile(lib.AddRootToPath("static/register.html"))
 }
 
 // ServeLoginPage returns the login html page to the user.
@@ -21,7 +21,7 @@ func ServeLoginPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	ctx.SendFile("./static/login.html")
+	ctx.SendFile(lib.AddRootToPath("static/login.html"))
 }
 
 // Register handles the register request from the /register page html form. It creates checks for conflicting
@@ -85,9 +85,9 @@ func Register(ctx *fasthttp.RequestCtx) {
 		UUID:                 lib.GenerateUUID(),
 	}
 
-	// Use that unique id to create a folder in the ./files directory that in the future will contain all of the
+	// Use that unique id to create a folder in the files directory that in the future will contain all of the
 	// user's files.
-	err = os.Mkdir("./files/"+newUser.UUID, os.ModePerm)
+	err = os.Mkdir(lib.AddRootToPath("files/")+newUser.UUID, os.ModePerm)
 	if err != nil {
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return

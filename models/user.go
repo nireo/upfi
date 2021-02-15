@@ -30,7 +30,7 @@ func (user *User) Delete() error {
 	db := lib.GetDatabase()
 
 	// Remove the user's folder
-	if err := os.RemoveAll("./files/" + user.UUID); err != nil {
+	if err := os.RemoveAll(lib.AddRootToPath("files/") + user.UUID); err != nil {
 		return err
 	}
 

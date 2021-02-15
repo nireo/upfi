@@ -1,7 +1,6 @@
 package templateapi
 
 import (
-	"fmt"
 	"os"
 	"text/template"
 
@@ -31,7 +30,7 @@ func ServeSettingsPage(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Serve the template file, with the user information we loaded before.
-	tmpl := template.Must(template.ParseFiles("./templates/settings_template.html"))
+	tmpl := template.Must(template.ParseFiles(lib.AddRootToPath("templates/settings_template.html")))
 	if err := tmpl.Execute(ctx, nil); err != nil {
 		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
@@ -106,7 +105,7 @@ func DeleteUser(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Remove the hole directory we created at registeration.
-	if err := os.Remove(fmt.Sprintf("./files/%s", user.UUID)); err != nil {
+	if err := os.Remove(lib.AddRootToPath("files/") + user.UUID); err != nil {
 		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
 		return
 	}

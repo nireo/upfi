@@ -69,7 +69,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 
 	// Use that unique id to create a folder in the ./files directory that in the future will contain all of the
 	// user's files.
-	err = os.Mkdir("./files/"+newUser.UUID, os.ModePerm)
+	err = os.Mkdir(lib.AddRootToPath("files/")+newUser.UUID, os.ModePerm)
 	if err != nil {
 		ServeErrorJSON(ctx, lib.InternalServerErrorPage)
 		return
