@@ -12,6 +12,41 @@
     />
     <title>File {{.Filename}} - upfi</title>
   </head>
+  <script>
+    function updateFileData() {
+      // get the file uuid from
+      var fileIdentifier = document.getElementById("form-uuid");
+      fileIdentifier = fileIdentifier.innerText;
+
+      var formWindow = document.getElementById("update-form");
+
+      var form = document.createElement("form");
+      form.setAttribute("method", "post");
+      form.setAttribute("action", `/update/${fileIdentifier}`);
+      form.setAttribute("id", "update-form-form");
+      formWindow.appendChild(form);
+
+      var fileNameInput = document.createElement("input");
+      fileNameInput.setAttribute("name", "title");
+      fileNameInput.setAttribute("placeholder", "New file name");
+      fileNameInput.setAttribute("type", "text");
+      fileNameInput.setAttribute("class", "form-control mt-2");
+      formWindow.appendChild(fileNameInput);
+
+      var descriptionInput = document.createElement("input");
+      descriptionInput.setAttribute("name", "description");
+      descriptionInput.setAttribute("placeholder", "New description");
+      descriptionInput.setAttribute("type", "text");
+      descriptionInput.setAttribute("class", "form-control mt-2");
+      formWindow.appendChild(descriptionInput);
+
+      var submitButton = document.createElement("button");
+      submitButton.setAttribute("type", "submit");
+      submitButton.setAttribute("class", "btn btn-info mt-4");
+      submitButton.innerText = "Update";
+      formWindow.appendChild(submitButton);
+    }
+  </script>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <a class="navbar-brand" href="/">upfi</a>
@@ -44,6 +79,7 @@
     </nav>
     <div class="container mt-3">
       <h2>File {{.Filename}}</h2>
+      <p class="text-muted" id="form-uuid">{{ .UUID }}</p>
       <p class="text-muted">{{.Description}}</p>
       <div style="display: flex">
         <form
@@ -54,6 +90,13 @@
           <input type="password" name="master" />
           <button type="submit" class="size-sm btn btn-info">Download</button>
         </form>
+        <button
+          style="margin-left: 0.5rem"
+          onclick="updateFileData()"
+          class="size-sm btn btn-info"
+        >
+          Update
+        </button>
         <form
           method="post"
           action="/delete?file={{ .UUID }}"
@@ -62,6 +105,7 @@
           <button type="submit" class="size-sm btn btn-danger">Delete</button>
         </form>
       </div>
+      <div id="update-form"></div>
 
       <hr style="margin-top: 2rem; margin-bottom: 2rem" />
       <h4>File information</h4>
