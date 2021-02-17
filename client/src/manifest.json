@@ -1,6 +1,6 @@
 {
-  "name": "js-client",
-  "short_name": "js-client",
+  "name": "client",
+  "short_name": "client",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
