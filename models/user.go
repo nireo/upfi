@@ -25,6 +25,48 @@ func (user *User) Serialize() lib.JSON {
 	}
 }
 
+func (user *User) FindSharedToFiles() ([]File, error) {
+	db := lib.GetDatabase()
+
+	var sharedFileContracts []FileShare
+	if err := db.Where(&FileShare{SharedToID: user.ID}).Find(&sharedFileContracts).Error; err != nil {
+		return nil, err
+	}
+
+	var files []File
+	for _, sf := range sharedFileContracts {
+		var tempFile File
+		if err := db.Where("id = ?", sf.SharedFileID).First(&tempFile).Error; err != nil {
+			return nil, err
+		}
+
+		files = append(files, tempFile)
+	}
+
+	return files, nil
+}
+
+func (user *User) FindSharedByFiles() ([]File, error) {
+	db := lib.GetDatabase()
+
+	var sharedFileContracts []FileShare
+	if err := db.Where(&FileShare{SharedByID: user.ID}).Find(&sharedFileContracts).Error; err != nil {
+		return nil, err
+	}
+
+	var files []File
+	for _, sf := range sharedFileContracts {
+		var tempFile File
+		if err := db.Where("id = ?", sf.SharedFileID).First(&tempFile).Error; err != nil {
+			return nil, err
+		}
+
+		files = append(files, tempFile)
+	}
+
+	return files, nil
+}
+
 // Delete deletes the given user's file and removes the user's database entry from the database.
 func (user *User) Delete() error {
 	db := lib.GetDatabase()

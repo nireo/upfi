@@ -19,6 +19,35 @@ type File struct {
 	MIME        string `json:"mime"`
 }
 
+// FileShare represents a file share record
+type FileShare struct {
+	gorm.Model
+	SharedByID   uint // the sharer's primary key
+	SharedToID   uint // the primary key of the shared user
+	SharedFileID uint
+}
+
+func (file *File) IsSharedTo(userID uint) bool {
+	db := lib.GetDatabase()
+	if err := db.Where(&FileShare{SharedToID: userID, SharedFileID: file.ID}).Error; err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (file *File) ShareToUser(shareTo *User) {
+	db := lib.GetDatabase()
+
+	fileShare := &FileShare{
+		SharedByID:   file.UserID,
+		SharedFileID: file.ID,
+		SharedToID:   shareTo.ID,
+	}
+
+	db.Create(fileShare)
+}
+
 // Serialize serializes the user's data into json format
 func (file *File) Serialize() lib.JSON {
 	return lib.JSON{
