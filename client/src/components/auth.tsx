@@ -43,7 +43,7 @@ export const Auth: FunctionalComponent<Props> = (props: Props) => {
 
         let res = await response.json();
         console.log(res);
-    }, []);
+    }, [username, password, master]);
 
     const loginCall = useCallback(async () => {
         const requestBody: RequestBody = {
@@ -60,19 +60,19 @@ export const Auth: FunctionalComponent<Props> = (props: Props) => {
         });
 
         let res = await response.json();
-        console.log(res);
-    }, []);
+        console.log(res)
+    }, [username, password]);
 
     const handleUsernameChange = (event: any) => {
-        setUsername(event.target.value);
+        if (event.target.value !== "") setUsername(event.target.value);
     };
 
     const handlePasswordChange = (event: any) => {
-        setPassword(event.target.value);
+        if (event.target.value !== "") setPassword(event.target.value);
     };
 
     const handleMasterChange = (event: any) => {
-        setMaster(event.target.value);
+        if (event.target.value !== "") setMaster(event.target.value);
     };
 
     const handleAction = (event: any) => {
@@ -94,6 +94,7 @@ export const Auth: FunctionalComponent<Props> = (props: Props) => {
             <form onSubmit={handleAction}>
                 <div>
                     <input
+                        value={username}
                         placeholder="Username"
                         onInput={handleUsernameChange}
                     />
@@ -101,6 +102,7 @@ export const Auth: FunctionalComponent<Props> = (props: Props) => {
                 <div>
                     <input
                         type="password"
+                        value={password}
                         placeholder="Login password"
                         onInput={handlePasswordChange}
                     />

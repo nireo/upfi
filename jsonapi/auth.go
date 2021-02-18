@@ -2,10 +2,12 @@ package jsonapi
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
+
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/valyala/fasthttp"
-	"os"
 )
 
 type registerRequestBody struct {
@@ -24,6 +26,8 @@ func Register(ctx *fasthttp.RequestCtx) {
 		ServeErrorJSON(ctx, lib.BadRequestErrorPage)
 		return
 	}
+
+	fmt.Printf("%+v", body)
 
 	username := body.Username
 	password := body.Password
