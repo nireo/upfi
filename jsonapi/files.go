@@ -180,6 +180,7 @@ func UpdateFile(ctx *fasthttp.RequestCtx) {
 // handler. Then handler finds all the related files and constructs a simple json response.
 // Also the route is protected, so that the security token is checked before calling this handler.
 func GetUserFiles(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
 
