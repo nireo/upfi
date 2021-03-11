@@ -5,6 +5,7 @@ import (
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
+	"github.com/nireo/upfi/templates"
 	"github.com/valyala/fasthttp"
 )
 
@@ -13,7 +14,7 @@ func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	ctx.SendFile(lib.AddRootToPath("static/register.html"))
+	templates.Register(ctx)
 }
 
 // ServeLoginPage returns the login html page to the user.
@@ -21,7 +22,7 @@ func ServeLoginPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	ctx.SendFile(lib.AddRootToPath("static/login.html"))
+	templates.Login(ctx)
 }
 
 // Register handles the register request from the /register page html form. It creates checks for conflicting
