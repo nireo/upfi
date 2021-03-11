@@ -36,12 +36,12 @@ func SetupTemplateAPI(port string) {
 	router.PATCH("/password", middleware.CheckAuthentication(UpdatePassword))
 
 	fmt.Printf(`
-              _____.__ 
+              _____.__
  __ _________/ ____\__|
 |  |  \____ \   __\|  |
 |  |  /  |_> >  |  |  |
 |____/|   __/|__|  |__|
-      |__|             
+      |__|
 Currently running port %s`, port)
 	fmt.Println()
 

@@ -4,6 +4,7 @@ import (
 	"html/template"
 
 	"github.com/nireo/upfi/lib"
+	"github.com/nireo/upfi/templates"
 	"github.com/valyala/fasthttp"
 )
 
@@ -29,9 +30,10 @@ func ErrorPageHandler(ctx *fasthttp.RequestCtx, errorType lib.ErrorPageContent) 
 // service.
 func ServeHomePage(ctx *fasthttp.RequestCtx) {
 	// Set the proper headers and then send the file.
-	ctx.Response.SetStatusCode(200)
+	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 	ctx.Response.Header.Set("Content-Type", "text/html")
-	ctx.SendFile(lib.AddRootToPath("static/home.html"))
+	// ctx.SendFile(lib.AddRootToPath("static/home.html"))
+	templates.Home(ctx)
 }
 
 // RedirectToAuthorized is a handler that moves the user to an authorized page if logged in.

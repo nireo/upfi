@@ -12,7 +12,7 @@ import (
 // to easily contain all of the html files in the compiled binary. This makes the task
 // of deploying the application easier.
 
-//go:embed templates/*
+//go:embed *
 var files embed.FS
 
 // Define all the template pages such that using all the templates is easier.
@@ -20,10 +20,10 @@ var (
 	dashboard = parse("dashboard.html")
 	home      = parse("home.html")
 
-	filesPage  = parse("files.html")
-	fileSingle = parse("single_file.html")
+	filesPage  = parse("files_template.html")
+	fileSingle = parse("single_file_template.html")
 
-	settings = parse("settings.html")
+	settings = parse("settings_template.html")
 
 	login    = parse("login.html")
 	register = parse("register.html")

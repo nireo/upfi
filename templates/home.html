@@ -1,0 +1,172 @@
+{{ define "content"}}
+<div class="mx-auto container">
+  <div>
+    <div>
+      <h2 class="text-4xl text-blue-600 font-sans mt-4">
+        upfi - file hosting service
+      </h2>
+      <p class="text-gray-700">
+        A minimal file hosting service to store all your files!
+      </p>
+      <div class="mt-6">
+        <a
+          class="bg-transparent text-gray-800 p-2 rounded border border-gray-300 mr-4 hover:bg-gray-100 hover:text-gray-700"
+          href="/login"
+        >
+          Login
+        </a>
+        <a
+          href="/register"
+          class="bg-blue-600 text-gray-200 p-2 rounded hover:bg-blue-500 hover:text-gray-100"
+        >
+          Register
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="mt-10">
+    <dl
+      class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10"
+    >
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <div
+            class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white"
+          >
+            <!-- Heroicon name: outline/globe-alt -->
+            <svg
+              class="h-6 w-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <dt class="text-lg leading-6 font-medium text-gray-900">
+            A simple interface
+          </dt>
+          <dd class="mt-2 text-base text-gray-500">
+            Upfi features a clean and simple interface to manage files.
+            Everything from deleting, updating, creating to downloading files is
+            supported!
+          </dd>
+        </div>
+      </div>
+
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <div
+            class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white"
+          >
+            <!-- Heroicon name: outline/scale -->
+            <svg
+              class="h-6 w-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <dt class="text-lg leading-6 font-medium text-gray-900">
+            Open source
+          </dt>
+          <dd class="mt-2 text-base text-gray-500">
+            Upfi is fully built with Go, and all of the source files are
+            publicly available on
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/nireo/upfi"
+              class="text-blue-500 hover:text-blue-400"
+              >github</a
+            >.
+          </dd>
+        </div>
+      </div>
+
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <div
+            class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white"
+          >
+            <!-- Heroicon name: outline/lightning-bolt -->
+            <svg
+              class="h-6 w-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <dt class="text-lg leading-6 font-medium text-gray-900">
+            Easy to setup
+          </dt>
+          <dd class="mt-2 text-base text-gray-500">
+            There are instructions on the github so that deployment is as easy
+            as possible. Anyone can do it!
+          </dd>
+        </div>
+      </div>
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <div
+            class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <dt class="text-lg leading-6 font-medium text-gray-900">Secure</dt>
+          <dd class="mt-2 text-base text-gray-500">
+            All files held on the server are immediately encrypted, such that
+            the server owner cannot open your private files!
+          </dd>
+        </div>
+      </div>
+    </dl>
+  </div>
+  {{end}}
+</div>
