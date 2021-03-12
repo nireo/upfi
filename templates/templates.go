@@ -22,6 +22,7 @@ var (
 
 	filesPage  = parse("files_template.html")
 	fileSingle = parse("single_file_template.html")
+	upload     = parse("upload.html")
 
 	settings = parse("settings_template.html")
 
@@ -85,6 +86,11 @@ func Login(w io.Writer) error {
 // Register renders the register template file
 func Register(w io.Writer) error {
 	return register.Execute(w, nil)
+}
+
+// Upload renders the upload template file
+func Upload(w io.Writer) error {
+	return upload.Execute(w, nil)
 }
 
 // parse takes in a file path and parses the embedded template files for the file and returns a

@@ -1,113 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
-      crossorigin="anonymous"
-    />
-
-    <title>Upload File - upfi</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">upfi</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#"
-              >Home <span class="sr-only">(current)</span></a
-            >
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" href="/upload">Upload</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="/files">my files</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/settings">settings</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    <div class="container">
-      <div class="card" style="width: 100%; margin-top: 4rem">
-        <div class="card-header">File upload</div>
-        <div class="card-body">
-          <form
-            enctype="multipart/form-data"
-            action="http://localhost:8080/upload"
-            method="post"
-          >
-            <div class="form-group">
-              <label for="filenameInput">Custom filename</label>
-              <input
-                type="filename"
-                class="form-control"
-                id="filenameInput"
-                aria-describedby="filenameHelp"
-              />
-              <small id="fileHelp" class="form-text text-muted"
-                >By default the file's own name will be used.</small
-              >
-            </div>
-            <div class="form-group">
-              <label for="masterKey">Your account's file encrypt key</label>
-              <input
-                type="text"
-                class="form-control"
-                id="masterKey"
-                name="master"
-                aria-describedby="masterKey"
-              />
-              <small id="masterKey" class="form-text text-muted"
-                >The encryption key you setup in the registeration
-                process.</small
-              >
-            </div>
-            <div class="form-group">
-              <label for="exampleFormControlTextarea1">File description</label>
+{{ define "content" }}
+<div class="mx-auto container">
+  <div class="mt-5">
+    <form action="/" method="POST">
+      <div class="shadow sm:rounded-md sm:overflow-hidden">
+        <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+          <div>
+            <label for="masterPass" class="sr-only">Encryption Key</label>
+            <input
+              name="master"
+              type="password"
+              id="masterPass"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+              required
+              placeholder="Encryption key"
+            />
+          </div>
+          <div>
+            <div class="mt-1">
               <textarea
-                class="form-control"
-                id="exampleFormControlTextarea1"
+                id="description"
                 name="description"
                 rows="3"
+                class="appearance-none resize-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+                placeholder="Description"
               ></textarea>
             </div>
-            <div>
-              <label for="choose-file" class="btn btn-info">Choose file</label>
-              <input
-                style="display: none"
-                type="file"
-                id="choose-file"
-                name="file"
-              />
+            <p class="mt-2 text-sm text-gray-500">
+              An optional description to add to the file
+            </p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Cover photo
+            </label>
+            <div
+              class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+            >
+              <div class="space-y-1 text-center">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                  />
+                </svg>
+                <div class="flex text-sm text-gray-600">
+                  <label
+                    for="file-upload"
+                    class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                  >
+                    <span>Upload a file</span>
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      class="sr-only"
+                    />
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs text-gray-500">Any file up to 100MB</p>
+              </div>
             </div>
-            <div>
-              <button type="submit" class="btn btn-secondary">Upload</button>
-            </div>
-          </form>
+          </div>
+        </div>
+        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+          <button
+            type="submit"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Upload
+          </button>
         </div>
       </div>
-    </div>
-  </body>
-</html>
+    </form>
+  </div>
+</div>
+{{ end }}
