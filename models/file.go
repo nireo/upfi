@@ -14,6 +14,7 @@ type File struct {
 	UUID        string `json:"uuid"`
 	Description string `json:"description"`
 	Size        int64  `json:"size"`
+	SizeHuman   string
 	UserID      uint
 	Extension   string `json:"extension"`
 	MIME        string `json:"mime"`

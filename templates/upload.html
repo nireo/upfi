@@ -1,7 +1,7 @@
 {{ define "content" }}
 <div class="mx-auto container">
   <div class="mt-5">
-    <form action="/" method="POST">
+    <form action="/upload" method="POST" enctype="multipart/form-data">
       <div class="shadow sm:rounded-md sm:overflow-hidden">
         <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
           <div>
@@ -59,7 +59,7 @@
                     <span>Upload a file</span>
                     <input
                       id="file-upload"
-                      name="file-upload"
+                      name="file"
                       type="file"
                       class="sr-only"
                     />

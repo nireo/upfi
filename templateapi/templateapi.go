@@ -24,7 +24,9 @@ func SetupTemplateAPI(port string) {
 	router.GET("/", middleware.TinyLogger(ServeHomePage))
 
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))
-	router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))
+	// router.GET("/upload", middleware.CheckAuthentication(ServeUploadPage))
+	router.GET("/upload", ServeUploadPage)
+
 	router.POST("/download/:file", middleware.CheckAuthentication(DownloadFile))
 	router.GET("/file/:file", middleware.CheckAuthentication(GetSingleFile))
 	router.GET("/files", middleware.CheckAuthentication(GetUserFiles))
@@ -35,15 +37,7 @@ func SetupTemplateAPI(port string) {
 	router.DELETE("/remove", middleware.CheckAuthentication(DeleteUser))
 	router.PATCH("/password", middleware.CheckAuthentication(UpdatePassword))
 
-	fmt.Printf(`
-              _____.__
- __ _________/ ____\__|
-|  |  \____ \   __\|  |
-|  |  /  |_> >  |  |  |
-|____/|   __/|__|  |__|
-      |__|
-Currently running port %s`, port)
-	fmt.Println()
+	log.Printf("current running on port: %s", port)
 
 	// Start a HTTP server listening on the port from the environment variable
 	if err := fasthttp.ListenAndServe(fmt.Sprintf("localhost:%s", port), router.Handler); err != nil {

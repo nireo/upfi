@@ -1,6 +1,7 @@
 package templateapi
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/nireo/upfi/lib"
@@ -32,13 +33,15 @@ func Register(ctx *fasthttp.RequestCtx) {
 	// Parse the multipart form
 	form, err := ctx.MultipartForm()
 	if err != nil {
+		fmt.Println(err)
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
 
 	// Check that the username and the password fields are not empty. If they are empty, return the
 	// user with a bad request status.
-	if len(form.Value["username"]) == 0 || len(form.Value["password"][0]) == 0 || len(form.Value["master"]) == 0 {
+	if len(form.Value["username"]) == 0 || len(form.Value["password"]) == 0 || len(form.Value["master"]) == 0 {
+		fmt.Println("hello")
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}
@@ -53,6 +56,7 @@ func Register(ctx *fasthttp.RequestCtx) {
 	masterPass := form.Value["master"][0]
 
 	if !lib.IsUsernameValid(username) || !lib.IsPasswordValid(password) || !lib.IsPasswordValid(masterPass) {
+		fmt.Println("hello2")
 		ErrorPageHandler(ctx, lib.BadRequestErrorPage)
 		return
 	}

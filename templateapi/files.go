@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -12,8 +13,22 @@ import (
 	"github.com/nireo/upfi/crypt"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
+	"github.com/nireo/upfi/templates"
 	"github.com/valyala/fasthttp"
 )
+
+func formatFileSize(b int64) string {
+	const unit = 1000
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "kMGTPE"[exp])
+}
 
 // ServeUploadPage serves the requester a upload form, in which the user can upload files to their account.
 // Also the route is protected, so that the security token is checked before calling this handler.
@@ -22,7 +37,7 @@ func ServeUploadPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	ctx.SendFile(lib.AddRootToPath("static/upload.html"))
+	templates.Upload(ctx)
 }
 
 // UploadFile handles the logic of uploading a file from the upload file form.
@@ -68,6 +83,7 @@ func UploadFile(ctx *fasthttp.RequestCtx) {
 		UUID:        lib.GenerateUUID(),
 		Description: form.Value["description"][0],
 		Size:        header.Size,
+		SizeHuman:   formatFileSize(header.Size),
 		UserID:      user.ID,
 		Extension:   filepath.Ext(header.Filename),
 	}
@@ -227,6 +243,7 @@ type filePage struct {
 // then can view as html content.
 // Also the route is protected, so that the security token is checked before calling this handler.
 func GetUserFiles(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Content-Type", "text/html")
 	username := string(ctx.Request.Header.Peek("username"))
 	db := lib.GetDatabase()
 
@@ -241,20 +258,17 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	var files []models.File
 	db.Where(&models.File{UserID: user.ID}).Find(&files)
 
-	tmpl := template.Must(template.ParseFiles(
-		lib.AddRootToPath("templates/files_template.html")))
-	// construct a struct which contains the data we will give to the html template.
-	data := filePage{
-		PageTitle: "Your files",
-		Files:     files,
+	for _, f := range files {
+		f.SizeHuman = formatFileSize(f.Size)
 	}
 
-	// Display the user's files to the user
-	ctx.Response.Header.Set("Content-Type", "text/html")
-	if err := tmpl.Execute(ctx, data); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		ErrorPageHandler(ctx, lib.InternalServerErrorPage)
-		return
+	pageParams := templates.FilesParams{
+		Title: "Your files",
+		Files: files,
+	}
+
+	if err := templates.Files(ctx, pageParams); err != nil {
+		log.Println(err)
 	}
 }
 
