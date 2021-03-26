@@ -35,7 +35,7 @@ func ServeHomePage(ctx *fasthttp.RequestCtx) {
 	// ctx.SendFile(lib.AddRootToPath("static/home.html"))
 	templates.Home(ctx, templates.HomeParams{
 		Title:         "home",
-		Authenticated: false,
+		Authenticated: lib.IsAuthenticated(ctx),
 	})
 }
 

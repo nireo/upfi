@@ -9,10 +9,10 @@ import (
 func CreateRouter() *fasthttprouter.Router {
 	router := fasthttprouter.New()
 
-	router.POST("/register", middleware.TinyLogger(middleware.MoveIfAuthenticated(Register)))
-	router.POST("/login", middleware.TinyLogger(middleware.MoveIfAuthenticated(Login)))
-	router.GET("/login", middleware.TinyLogger(middleware.MoveIfAuthenticated(ServeLoginPage)))
-	router.GET("/register", middleware.TinyLogger(middleware.MoveIfAuthenticated(ServeRegisterPage)))
+	router.POST("/register", middleware.TinyLogger(Register))
+	router.POST("/login", middleware.TinyLogger(Login))
+	router.GET("/login", middleware.TinyLogger(ServeLoginPage))
+	router.GET("/register", middleware.TinyLogger(ServeRegisterPage))
 	router.GET("/", middleware.TinyLogger(ServeHomePage))
 
 	router.POST("/upload", middleware.CheckAuthentication(UploadFile))

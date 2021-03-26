@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,7 +37,8 @@ func ServeUploadPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
 	templates.Upload(ctx, templates.UploadParams{
-		Title:         "upload",
+		Title: "upload",
+		// we don't need to check if the user is authenticated, since a token is required to access route
 		Authenticated: true,
 	})
 }
@@ -266,13 +266,14 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	}
 
 	pageParams := templates.FilesParams{
-		Title:         "your files",
-		Files:         files,
+		Title: "your files",
+		Files: files,
+		// No need to check if the user is authenticated
 		Authenticated: true,
 	}
 
 	if err := templates.Files(ctx, pageParams); err != nil {
-		log.Println(err)
+		return
 	}
 }
 

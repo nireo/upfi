@@ -16,7 +16,7 @@ func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
 	templates.Register(ctx, templates.RegisterParams{
-		Authenticated: false,
+		Authenticated: lib.IsAuthenticated(ctx),
 		Title:         "register",
 	})
 }
@@ -27,7 +27,7 @@ func ServeLoginPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
 	templates.Login(ctx, templates.LoginParams{
-		Authenticated: false,
+		Authenticated: lib.IsAuthenticated(ctx),
 		Title:         "login",
 	})
 }
@@ -36,6 +36,11 @@ func ServeLoginPage(ctx *fasthttp.RequestCtx) {
 // usernames and creates a folder to the store all of the user's files in. Finally it creates a database entry
 // with all the information in given in the form.
 func Register(ctx *fasthttp.RequestCtx) {
+	// check if the user is already logged in
+	if lib.IsAuthenticated(ctx) {
+		return
+	}
+
 	// Parse the multipart form
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -131,6 +136,11 @@ func Register(ctx *fasthttp.RequestCtx) {
 // with the given username does exist and then checks that user's hash using bcrypt to the
 // password given in the form.
 func Login(ctx *fasthttp.RequestCtx) {
+	// check if the user is already logged in
+	if lib.IsAuthenticated(ctx) {
+		return
+	}
+
 	// Parse the multipart form
 	form, err := ctx.MultipartForm()
 	if err != nil {
