@@ -42,6 +42,7 @@
                   >Home</a
                 >
               </li>
+              {{ if .Authenticated }}
               <li>
                 <a
                   class="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2"
@@ -56,9 +57,11 @@
                   >Dashboard</a
                 >
               </li>
+              {{ end }}
             </ul>
           </nav>
         </div>
+        {{ if not .Authenticated }}
         <div
           class="order-2 md:order-3 flex flex-wrap items-center justify-end mr-0 md:mr-4"
           id="nav-content"
@@ -78,6 +81,7 @@
             </a>
           </div>
         </div>
+        {{ end }}
       </div>
     </nav>
     <div>{{ block "content" .}} {{ end }}</div>

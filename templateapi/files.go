@@ -37,7 +37,10 @@ func ServeUploadPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	templates.Upload(ctx)
+	templates.Upload(ctx, templates.UploadParams{
+		Title:         "upload",
+		Authenticated: true,
+	})
 }
 
 // UploadFile handles the logic of uploading a file from the upload file form.
@@ -263,8 +266,9 @@ func GetUserFiles(ctx *fasthttp.RequestCtx) {
 	}
 
 	pageParams := templates.FilesParams{
-		Title: "Your files",
-		Files: files,
+		Title:         "your files",
+		Files:         files,
+		Authenticated: true,
 	}
 
 	if err := templates.Files(ctx, pageParams); err != nil {

@@ -15,7 +15,10 @@ func ServeRegisterPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	templates.Register(ctx)
+	templates.Register(ctx, templates.RegisterParams{
+		Authenticated: false,
+		Title:         "register",
+	})
 }
 
 // ServeLoginPage returns the login html page to the user.
@@ -23,7 +26,10 @@ func ServeLoginPage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 
-	templates.Login(ctx)
+	templates.Login(ctx, templates.LoginParams{
+		Authenticated: false,
+		Title:         "login",
+	})
 }
 
 // Register handles the register request from the /register page html form. It creates checks for conflicting

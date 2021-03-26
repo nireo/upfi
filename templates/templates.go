@@ -12,6 +12,9 @@ import (
 // to easily contain all of the html files in the compiled binary. This makes the task
 // of deploying the application easier.
 
+// For some pages the Authenticated parameter is not needed, since it is obvious that the user
+// is authenticated if he/she can access the site.
+
 //go:embed *
 var files embed.FS
 
@@ -32,18 +35,20 @@ var (
 
 // DashboardParams contains all of the parameters to the dashboard page.
 type DashboardParams struct {
-	Title string
+	Title         string
+	Authenticated bool
 }
 
 // Dashboard renders the dashboard template file
-func Dashboard(w io.Writer) error {
+func Dashboard(w io.Writer, aparams DashboardParams) error {
 	return dashboard.Execute(w, nil)
 }
 
 // FilesParams contains all of the parameters to the files page.
 type FilesParams struct {
-	Title string
-	Files []models.File
+	Title         string
+	Files         []models.File
+	Authenticated bool
 }
 
 // Files renders the files template file
@@ -53,8 +58,9 @@ func Files(w io.Writer, params FilesParams) error {
 
 // SingleFileParams contains all of the parameters to the single file page.
 type SingleFileParams struct {
-	Title string
-	File  models.File
+	Title         string
+	File          models.File
+	Authenticated bool
 }
 
 // SingleFile renders the single file template file
@@ -62,15 +68,21 @@ func SingleFile(w io.Writer, params SingleFileParams) error {
 	return fileSingle.Execute(w, params)
 }
 
+type HomeParams struct {
+	Title         string
+	Authenticated bool
+}
+
 // Register renders the register template file
-func Home(w io.Writer) error {
-	return home.Execute(w, nil)
+func Home(w io.Writer, params HomeParams) error {
+	return home.Execute(w, params)
 }
 
 // SettingsParams contains all of the parameters to the settings page.
 type SettingsParams struct {
-	Title string
-	User  models.User
+	Title        string
+	User         models.User
+	Auhenticated bool
 }
 
 // Settings renders the settings template file
@@ -78,19 +90,37 @@ func Settings(w io.Writer, params SettingsParams) error {
 	return settings.Execute(w, params)
 }
 
+// LoginParams contains parameters for the login page
+type LoginParams struct {
+	Authenticated bool
+	Title         string
+}
+
 // Login renders the login template file
-func Login(w io.Writer) error {
-	return login.Execute(w, nil)
+func Login(w io.Writer, params LoginParams) error {
+	return login.Execute(w, params)
+}
+
+// RegisterParams contains parameters for the register page
+type RegisterParams struct {
+	Authenticated bool
+	Title         string
 }
 
 // Register renders the register template file
-func Register(w io.Writer) error {
-	return register.Execute(w, nil)
+func Register(w io.Writer, params RegisterParams) error {
+	return register.Execute(w, params)
+}
+
+// UploadParams contains all of the parameters to the upload page
+type UploadParams struct {
+	Authenticated bool
+	Title         string
 }
 
 // Upload renders the upload template file
-func Upload(w io.Writer) error {
-	return upload.Execute(w, nil)
+func Upload(w io.Writer, params UploadParams) error {
+	return upload.Execute(w, params)
 }
 
 // parse takes in a file path and parses the embedded template files for the file and returns a

@@ -33,7 +33,10 @@ func ServeHomePage(ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetStatusCode(fasthttp.StatusOK)
 	ctx.Response.Header.Set("Content-Type", "text/html")
 	// ctx.SendFile(lib.AddRootToPath("static/home.html"))
-	templates.Home(ctx)
+	templates.Home(ctx, templates.HomeParams{
+		Title:         "home",
+		Authenticated: false,
+	})
 }
 
 // RedirectToAuthorized is a handler that moves the user to an authorized page if logged in.
