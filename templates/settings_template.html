@@ -1,72 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
-      crossorigin="anonymous"
-    />
-    <title>Files - upfi</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">upfi</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto"></ul>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="#">upload</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/files">my files</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/settings">settings</a>
-          </li>
-        </ul>
+{{ define "content" }}
+<div class="mx-auto container mt-8">
+  <h2 class="font-extrabold text-3xl text-gray-900 mb-8">Settings</h2>
+  <form
+    class="shadow sm:rounded-md sm:overflow-hidden"
+    method="post"
+    action="/settings"
+    enctype="multipart/form-data"
+  >
+    <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+      <h2 class="font-extrabold text-xl text-gray-900 mb-4">Change username</h2>
+      <div>
+        <label for="username" class="sr-only">Encryption Key</label>
+        <input
+          name="username"
+          type="text"
+          id="username"
+          class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+          required
+          placeholder="New username"
+        />
       </div>
-    </nav>
-    <div class="container">
-      <h1>Settings</h1>
-      <hr style="margin-bottom:2rem;margin-top:2rem;" />
-      <form method="post" action="/settings">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" class="form-control" id="username" name="username">
-        </div>
-        <button class="btn btn-info" type="submit">Update username</button>
-      </form>
-      <form method="post" action="/password" style="margin-top:2rem;">
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" class="form-control" id="password" name="password">
-        </div>
-        <div class="form-group">
-          <label for="newPassword">New password</label>
-          <input type="password" class="form-control" id="newPassword" name="newPassword">
-        </div>
-        <button class="btn btn-info" type="submit">Update password</button>
-      </form>
-      <form method="post" action="/remove" style="margin-top:2rem;">
-        <p class="text-muted">This action is irreversible, meaning all the files will be removed and you cannot get them back.</p>
-        <button class="btn btn-danger" type="submit">Delete</button>
-      </form>
     </div>
-  </body>
-</html>
+    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+      <button
+        type="submit"
+        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Update
+      </button>
+    </div>
+  </form>
+  <form
+    class="shadow sm:rounded-md sm:overflow-hidden mt-8"
+    method="post"
+    action="/password"
+    enctype="multipart/form-data"
+  >
+    <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+      <h2 class="font-extrabold text-xl text-gray-900 mb-4">Change password</h2>
+      <div>
+        <label for="password" class="sr-only">Encryption Key</label>
+        <input
+          name="password"
+          type="password"
+          id="passowrd"
+          class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+          required
+          placeholder="Current password"
+        />
+      </div>
+      <div>
+        <label for="newPassword" class="sr-only">Encryption Key</label>
+        <input
+          name="newPassword"
+          type="password"
+          id="newPassword"
+          class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+          required
+          placeholder="New password"
+        />
+      </div>
+    </div>
+    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+      <button
+        type="submit"
+        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        Update
+      </button>
+    </div>
+  </form>
+</div>
+{{ end }}

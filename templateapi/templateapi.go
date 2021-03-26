@@ -35,7 +35,7 @@ func SetupTemplateAPI(port string) {
 	router.GET("/settings", middleware.CheckAuthentication(ServeSettingsPage))
 	router.POST("/settings", middleware.CheckAuthentication(HandleSettingChange))
 	router.DELETE("/remove", middleware.CheckAuthentication(DeleteUser))
-	router.PATCH("/password", middleware.CheckAuthentication(UpdatePassword))
+	router.POST("/password", middleware.CheckAuthentication(UpdatePassword))
 
 	log.Printf("current running on port: %s", port)
 

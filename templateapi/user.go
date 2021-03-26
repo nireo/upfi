@@ -2,10 +2,10 @@ package templateapi
 
 import (
 	"os"
-	"text/template"
 
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
+	"github.com/nireo/upfi/templates"
 	"github.com/valyala/fasthttp"
 )
 
@@ -29,12 +29,14 @@ func ServeSettingsPage(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// Serve the template file, with the user information we loaded before.
-	tmpl := template.Must(template.ParseFiles(lib.AddRootToPath("templates/settings_template.html")))
-	if err := tmpl.Execute(ctx, nil); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		return
+	params := templates.SettingsParams{
+		User:          user,
+		Authenticated: true,
+		Title:         "settings",
 	}
+
+	// Serve the settings page with the given parameters.
+	templates.Settings(ctx, params)
 }
 
 // HandleSettingChange applies the new settings to the new user's database entry. This handler will get

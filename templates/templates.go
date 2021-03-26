@@ -20,8 +20,7 @@ var files embed.FS
 
 // Define all the template pages such that using all the templates is easier.
 var (
-	dashboard = parse("dashboard.html")
-	home      = parse("home.html")
+	home = parse("home.html")
 
 	filesPage  = parse("files_template.html")
 	fileSingle = parse("single_file_template.html")
@@ -32,17 +31,6 @@ var (
 	login    = parse("login.html")
 	register = parse("register.html")
 )
-
-// DashboardParams contains all of the parameters to the dashboard page.
-type DashboardParams struct {
-	Title         string
-	Authenticated bool
-}
-
-// Dashboard renders the dashboard template file
-func Dashboard(w io.Writer, aparams DashboardParams) error {
-	return dashboard.Execute(w, nil)
-}
 
 // FilesParams contains all of the parameters to the files page.
 type FilesParams struct {
@@ -80,9 +68,9 @@ func Home(w io.Writer, params HomeParams) error {
 
 // SettingsParams contains all of the parameters to the settings page.
 type SettingsParams struct {
-	Title        string
-	User         models.User
-	Auhenticated bool
+	Title         string
+	User          models.User
+	Authenticated bool
 }
 
 // Settings renders the settings template file
