@@ -1,130 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
-      crossorigin="anonymous"
-    />
-    <title>File {{.Filename}} - upfi</title>
-  </head>
-  <script>
-    function updateFileData() {
-      // get the file uuid from
-      var fileIdentifier = document.getElementById("form-uuid");
-      fileIdentifier = fileIdentifier.innerText;
+{{ define "content" }}
+<div class="mx-auto container mt-8">
+  <h2 class="font-bold text-4xl text-gray-900 mb-8">{{ .File.Filename }}</h2>
+  <p class="text-muted" id="form-uuid">{{ .File.UUID }}</p>
+  <p class="text-muted">{{.File.Description}}</p>
+  <div style="display: flex">
+    <form
+      enctype="multipart/form-data"
+      method="post"
+      action="/download/{{ .UUID }}"
+    >
+      <input type="password" name="master" />
+      <button type="submit" class="size-sm btn btn-info">Download</button>
+    </form>
+    <button
+      style="margin-left: 0.5rem"
+      onclick="updateFileData()"
+      class="size-sm btn btn-info"
+    >
+      Update
+    </button>
+    <form
+      method="post"
+      action="/delete?file={{ .UUID }}"
+      style="margin-left: 0.5rem"
+    >
+      <button type="submit" class="size-sm btn btn-danger">Delete</button>
+    </form>
+  </div>
+  <div id="update-form"></div>
 
-      var formWindow = document.getElementById("update-form");
-
-      var form = document.createElement("form");
-      form.setAttribute("method", "post");
-      form.setAttribute("action", `/update/${fileIdentifier}`);
-      form.setAttribute("id", "update-form-form");
-      formWindow.appendChild(form);
-
-      var fileNameInput = document.createElement("input");
-      fileNameInput.setAttribute("name", "title");
-      fileNameInput.setAttribute("placeholder", "New file name");
-      fileNameInput.setAttribute("type", "text");
-      fileNameInput.setAttribute("class", "form-control mt-2");
-      formWindow.appendChild(fileNameInput);
-
-      var descriptionInput = document.createElement("input");
-      descriptionInput.setAttribute("name", "description");
-      descriptionInput.setAttribute("placeholder", "New description");
-      descriptionInput.setAttribute("type", "text");
-      descriptionInput.setAttribute("class", "form-control mt-2");
-      formWindow.appendChild(descriptionInput);
-
-      var submitButton = document.createElement("button");
-      submitButton.setAttribute("type", "submit");
-      submitButton.setAttribute("class", "btn btn-info mt-4");
-      submitButton.innerText = "Update";
-      formWindow.appendChild(submitButton);
-    }
-  </script>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">upfi</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto"></ul>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="/upload">upload</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/files">my files</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/settings">settings</a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    <div class="container mt-3">
-      <h2>File {{.Filename}}</h2>
-      <p class="text-muted" id="form-uuid">{{ .UUID }}</p>
-      <p class="text-muted">{{.Description}}</p>
-      <div style="display: flex">
-        <form
-          enctype="multipart/form-data"
-          method="post"
-          action="/download/{{ .UUID }}"
-        >
-          <input type="password" name="master" />
-          <button type="submit" class="size-sm btn btn-info">Download</button>
-        </form>
-        <button
-          style="margin-left: 0.5rem"
-          onclick="updateFileData()"
-          class="size-sm btn btn-info"
-        >
-          Update
-        </button>
-        <form
-          method="post"
-          action="/delete?file={{ .UUID }}"
-          style="margin-left: 0.5rem"
-        >
-          <button type="submit" class="size-sm btn btn-danger">Delete</button>
-        </form>
-      </div>
-      <div id="update-form"></div>
-
-      <hr style="margin-top: 2rem; margin-bottom: 2rem" />
-      <h4>File information</h4>
-      <table style="width: 100%">
-        <tr>
-          <th>Filename</th>
-          <th>Size</th>
-          <th>Extension</th>
-          <th>Created</th>
-          <th>Updated</th>
-        </tr>
-        <tr>
-          <td>{{ .Filename }}</td>
-          <td>{{ .Size }}</td>
-          <td>{{ .Extension }}</td>
-          <td>{{ .CreatedAt }}</td>
-          <td>{{ .UpdatedAt }}</td>
-        </tr>
-      </table>
-    </div>
-  </body>
-</html>
+  <hr style="margin-top: 2rem; margin-bottom: 2rem" />
+  <h4>File information</h4>
+  <table style="width: 100%">
+    <tr>
+      <th>Filename</th>
+      <th>Size</th>
+      <th>Extension</th>
+      <th>Created</th>
+      <th>Updated</th>
+    </tr>
+    <tr>
+      <td>{{ .File.Filename }}</td>
+      <td>{{ .File.SizeHuman }}</td>
+      <td>{{ .File.Extension }}</td>
+      <td>{{ .File.CreatedAt }}</td>
+      <td>{{ .File.UpdatedAt }}</td>
+    </tr>
+  </table>
+</div>
+{{ end }}

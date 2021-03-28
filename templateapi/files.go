@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"text/template"
 
 	"github.com/nireo/upfi/crypt"
 	"github.com/nireo/upfi/lib"
@@ -228,12 +227,13 @@ func GetSingleFile(ctx *fasthttp.RequestCtx) {
 
 	// Display the user with the file's information, this template also includes the option to download a file.
 	ctx.Response.Header.Set("Content-Type", "text/html")
-	tmpl := template.Must(template.ParseFiles(
-		lib.AddRootToPath("templates/single_file_template.html")))
-	if err := tmpl.Execute(ctx, file); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
-		return
+	params := templates.SingleFileParams{
+		Authenticated: true,
+		Title:         file.Filename,
+		File:          file,
 	}
+
+	templates.SingleFile(ctx, params)
 }
 
 type filePage struct {
