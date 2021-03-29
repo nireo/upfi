@@ -1,51 +1,111 @@
 {{ define "content" }}
 <div class="mx-auto container mt-8">
-  <h2 class="font-bold text-4xl text-gray-900 mb-8">{{ .File.Filename }}</h2>
-  <p class="text-muted" id="form-uuid">{{ .File.UUID }}</p>
-  <p class="text-muted">{{.File.Description}}</p>
-  <div style="display: flex">
+  <h2 class="font-bold text-4xl text-gray-900 mb-2">{{ .File.Filename }}</h2>
+  <p class="text-gray-700 text-xl mb-8">{{.File.Description}}</p>
+  <div class="flex">
     <form
       enctype="multipart/form-data"
       method="post"
-      action="/download/{{ .UUID }}"
+      action="/download/{{ .File.UUID }}"
+      class="flex"
     >
-      <input type="password" name="master" />
-      <button type="submit" class="size-sm btn btn-info">Download</button>
+      <input
+        name="master"
+        type="password"
+        id="masterPass"
+        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+        required
+        placeholder="Encryption key"
+      />
+      <button
+        type="submit"
+        class="bg-blue-600 text-gray-200 p-2 ml-4 rounded hover:bg-blue-500 hover:text-gray-100"
+      >
+        Download
+      </button>
     </form>
-    <button
-      style="margin-left: 0.5rem"
-      onclick="updateFileData()"
-      class="size-sm btn btn-info"
-    >
-      Update
-    </button>
     <form
       method="post"
-      action="/delete?file={{ .UUID }}"
+      action="/delete?file={{ .File.UUID }}"
       style="margin-left: 0.5rem"
     >
-      <button type="submit" class="size-sm btn btn-danger">Delete</button>
+      <button
+        type="submit"
+        class="bg-red-400 text-gray-200 p-2 ml-4 rounded hover:bg-red-500 hover:text-gray-100"
+      >
+        Delete
+      </button>
     </form>
   </div>
   <div id="update-form"></div>
 
   <hr style="margin-top: 2rem; margin-bottom: 2rem" />
-  <h4>File information</h4>
-  <table style="width: 100%">
-    <tr>
-      <th>Filename</th>
-      <th>Size</th>
-      <th>Extension</th>
-      <th>Created</th>
-      <th>Updated</th>
-    </tr>
-    <tr>
-      <td>{{ .File.Filename }}</td>
-      <td>{{ .File.SizeHuman }}</td>
-      <td>{{ .File.Extension }}</td>
-      <td>{{ .File.CreatedAt }}</td>
-      <td>{{ .File.UpdatedAt }}</td>
-    </tr>
-  </table>
+  <h2 class="font-bold text-3xl text-gray-900 mb-8">File information</h2>
+  <div class="flex flex-col">
+    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+        <div
+          class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg"
+        >
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Name
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Size
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Extension
+                </th>
+                <th
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Created At
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">
+                          {{ .File.Filename }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    {{ .File.SizeHuman }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    {{ .File.Extension }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ .File.CreatedAt }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {{ end }}
