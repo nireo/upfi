@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 
+	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 )
 
@@ -30,6 +31,8 @@ var (
 
 	login    = parse("login.html")
 	register = parse("register.html")
+
+	errorPage = parse("error_page.html")
 )
 
 // FilesParams contains all of the parameters to the files page.
@@ -109,6 +112,18 @@ type UploadParams struct {
 // Upload renders the upload template file
 func Upload(w io.Writer, params UploadParams) error {
 	return upload.Execute(w, params)
+}
+
+// ErrorParams contains all of the parameters to the error pages
+type ErrorParams struct {
+	Title         string
+	Authenticated bool
+	Error         lib.ErrorPageContent
+}
+
+// ErrorPage contains the renderer for the error pages
+func ErrorPage(w io.Writer, params ErrorParams) error {
+	return errorPage.Execute(w, params)
 }
 
 // parse takes in a file path and parses the embedded template files for the file and returns a

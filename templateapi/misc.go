@@ -1,8 +1,6 @@
 package templateapi
 
 import (
-	"html/template"
-
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/templates"
 	"github.com/valyala/fasthttp"
@@ -15,15 +13,12 @@ func ErrorPageHandler(ctx *fasthttp.RequestCtx, errorType lib.ErrorPageContent) 
 	ctx.Response.SetStatusCode(errorType.StatusCode)
 	ctx.Response.Header.Set("Content-Type", "text/html")
 
-	tmpl := template.Must(template.ParseFiles(
-		lib.AddRootToPath("templates/error_page.html")))
-	// Execute the template giving it the errorType, so that it can properly display the
-	// error message to the user
-	if err := tmpl.Execute(ctx, errorType); err != nil {
-		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError),
-			fasthttp.StatusInternalServerError)
-		return
+	params := templates.ErrorParams{
+		Title:         errorType.MainMessage,
+		Authenticated: lib.IsAuthenticated(ctx),
+		Error:         errorType,
 	}
+	templates.ErrorPage(ctx, params)
 }
 
 // ServeHomePage just sends the user the home.html file which contains some information about the

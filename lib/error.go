@@ -59,3 +59,12 @@ func CreateSimpleErrorContent(statusCode int) *ErrorPageContent {
 		Description: "No description provided.",
 	}
 }
+
+// CreateDetailedErrorContent makes a more detailed  error page with fully custom content
+func CreateDetailedErrorContent(err error, title string, code int) *ErrorPageContent {
+	return &ErrorPageContent{
+		StatusCode:  code,
+		MainMessage: title,
+		Description: err.Error(),
+	}
+}
