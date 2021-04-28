@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/templates"
 )
@@ -22,4 +23,14 @@ func ErrorPageHandler(w http.ResponseWriter, r *http.Request,
 	}
 
 	templates.ErrorPage(w, params)
+}
+
+// ServeHomePage just sends the user the home.html file which contains some information about the
+// service.
+func ServeHomePage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
+	templates.Home(w, templates.HomeParams{
+		Title:         "home",
+		Authenticated: lib.IsAuth(r),
+	})
 }
