@@ -5,13 +5,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/models"
 	"github.com/nireo/upfi/templates"
 )
 
 // ServeRegisterPage returns the register html page to the user.
-func ServeRegisterPage(w http.ResponseWriter, r *http.Request) {
+func ServeRegisterPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Add("Content-Type", "text/html")
 	templates.Register(w, templates.RegisterParams{
 		Title:         "register",
@@ -20,7 +21,7 @@ func ServeRegisterPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // ServeLoginPage returns the login html page to the user.
-func ServeLoginPage(w http.ResponseWriter, r *http.Request) {
+func ServeLoginPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Add("Content-Type", "text/html")
 	templates.Login(w, templates.LoginParams{
 		Authenticated: lib.IsAuth(r),
@@ -31,13 +32,13 @@ func ServeLoginPage(w http.ResponseWriter, r *http.Request) {
 // Register handles the register request from the /register page html form. It creates checks for conflicting
 // usernames and creates a folder to the store all of the user's files in. Finally it creates a database entry
 // with all the information in given in the form.
-func Register(w http.ResponseWriter, r *http.Request) {
+func Register(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// check if the user is already logged in
 	if lib.IsAuth(r) {
 		return
 	}
 
-	err := r.ParseMultipartForm(32 << 20) // maxMemory 32MB
+	err := r.ParseMultipartForm(1 << 20) // maxMemory 1mb
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -107,6 +108,63 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new authentication token for the user so that he/she can use authenticated routes.
 	token, err := lib.CreateToken(newUser.Username)
+	if err != nil {
+		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+		return
+	}
+
+	// Use the token we created before and store it in a cookie, which will be checked when accessing
+	// authenticated routes.
+	expirationTime := time.Now().Add(time.Hour * 24)
+	cookie := http.Cookie{Name: "token", Value: token, Expires: expirationTime}
+	http.SetCookie(w, &cookie)
+
+	// Redirect the new user to the files page where the user can add new files.
+	http.Redirect(w, r, "/files", http.StatusPermanentRedirect)
+}
+
+// Login handles the login request from the /login page. It firstly checks that the a user
+// with the given username does exist and then checks that user's hash using bcrypt to the
+// password given in the form.
+func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if lib.IsAuth(r) {
+		return
+	}
+
+	err := r.ParseMultipartForm(1 << 20) // maxMemory 1mb
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Check that the username and the password fields are not empty. If they are empty, return the
+	// user with a bad request status.
+	if len(r.Form["username"]) == 0 || len(r.Form["password"]) == 0 {
+		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+		return
+	}
+
+	username := r.Form["username"][0]
+	password := r.Form["password"][0]
+	if !lib.IsUsernameValid(username) || !lib.IsPasswordValid(password) {
+		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+		return
+	}
+
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	if !lib.CheckPasswordHash(password, user.Password) {
+		// we don't want the other users to know about the existance of the user
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	// Create a new authentication token for the user so that he/she can use authenticated routes.
+	token, err := lib.CreateToken(user.Username)
 	if err != nil {
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
