@@ -72,7 +72,7 @@ func Home(w io.Writer, params HomeParams) error {
 // SettingsParams contains all of the parameters to the settings page.
 type SettingsParams struct {
 	Title         string
-	User          models.User
+	User          *models.User
 	Authenticated bool
 }
 
