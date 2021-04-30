@@ -2,9 +2,11 @@ package middleware
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/valyala/fasthttp"
 )
 
@@ -67,5 +69,22 @@ func FullLogger(req fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 	return fasthttp.RequestHandler(func(ctx *fasthttp.RequestCtx) {
 		req(ctx)
+	})
+}
+
+// TinyLogger prints a few pieces of information to stdout when a request happens.
+// FORMAT: [method] [url] [status]  [response-time]
+func TinyHTTPLogger(req httprouter.Handle) httprouter.Handle {
+	if enabled {
+		return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+			begin := time.Now()
+			req(w, r, httprouter.Params{})
+			end := time.Now()
+			output.Printf("%s %s %v", r.Method, r.URL.RequestURI(), end.Sub(begin))
+		})
+	}
+
+	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		req(w, r, httprouter.Params{})
 	})
 }

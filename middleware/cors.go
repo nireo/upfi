@@ -1,6 +1,11 @@
 package middleware
 
-import "github.com/valyala/fasthttp"
+import (
+	"net/http"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/valyala/fasthttp"
+)
 
 var (
 	corsAllowHeader      = "authorization,content-type"
@@ -18,5 +23,14 @@ func CORS(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", corsAllowOrigin)
 
 		next(ctx)
+	}
+}
+
+func HTTPCORS(w http.ResponseWriter, r *http.Request, _ httprouter.Params) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("Access-Control-Allow-Credentials", corsAllowCredentials)
+		w.Header().Set("Access-Control-Allow-Headers", corsAllowHeader)
+		w.Header().Set("Access-Control-Allow-Methods", corsAllowMethods)
+		w.Header().Set("Access-Control-Allow-Origin", corsAllowOrigin)
 	}
 }
