@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"github.com/nireo/upfi/jsonapi"
+	"github.com/nireo/upfi/web"
 
 	"github.com/joho/godotenv"
 	"github.com/nireo/upfi/models"
-	"github.com/nireo/upfi/templateapi"
 )
 
 func main() {
@@ -45,6 +45,6 @@ func main() {
 	if len(os.Args) == 2 && os.Args[1] == "json" {
 		jsonapi.RunJSONAPI(serverPort)
 	} else {
-		templateapi.SetupTemplateAPI(serverPort)
+		web.StartServer(serverPort)
 	}
 }

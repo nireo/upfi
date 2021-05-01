@@ -104,8 +104,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	newFileEntry.MIME = http.DetectContentType(fileHeader)
-
 	db.Create(newFileEntry)
+
+	r.Method = http.MethodGet
 	http.Redirect(w, r, "/files", http.StatusMovedPermanently)
 }
 
@@ -247,6 +248,7 @@ func UpdateFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Save the changes to the database.
 	db.Save(&file)
 
+	r.Method = http.MethodGet
 	http.Redirect(w, r, "/files", http.StatusMovedPermanently)
 }
 
@@ -288,6 +290,7 @@ func DeleteFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	// Delete the database entry
 	db.Delete(&file)
+	r.Method = http.MethodGet
 	http.Redirect(w, r, "/files", http.StatusMovedPermanently)
 }
 

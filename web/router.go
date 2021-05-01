@@ -5,10 +5,14 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/nireo/upfi/middleware"
 )
 
-func StartService(port string) {
+func StartServer(port string) {
 	router := httprouter.New()
+
+	// misc
+	router.GET("/", ServeHomePage)
 
 	// auth
 	router.GET("/login", ServeLoginPage)
@@ -17,10 +21,17 @@ func StartService(port string) {
 	router.POST("/register", Register)
 
 	// files
-	router.GET("/file", GetSingleFile)
-	router.GET("/upload", UploadFile)
-	router.POST("/upload", UploadFile)
-	router.GET("/files", GetUserFiles)
+	router.GET("/file", middleware.CheckToken(GetSingleFile))
+	router.GET("/upload", middleware.CheckToken(ServeUploadPage))
+	router.POST("/upload", middleware.CheckToken(UploadFile))
+	router.GET("/files", middleware.CheckToken(GetUserFiles))
+	router.PATCH("/file", middleware.CheckToken(UpdateFile))
+
+	// user
+	router.DELETE("/remove", middleware.CheckToken(DeleteUser))
+	router.PATCH("/password", middleware.CheckToken(UpdatePassword))
+	router.GET("/settings", middleware.CheckToken(ServeSettingsPage))
+	router.POST("/settings", middleware.CheckToken(HandleSettingChange))
 
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

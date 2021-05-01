@@ -120,6 +120,7 @@ func Register(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.SetCookie(w, &cookie)
 
 	// Redirect the new user to the files page where the user can add new files.
+	r.Method = http.MethodGet
 	http.Redirect(w, r, "/files", http.StatusPermanentRedirect)
 }
 
@@ -177,5 +178,6 @@ func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.SetCookie(w, &cookie)
 
 	// Redirect the new user to the files page where the user can add new files.
+	r.Method = http.MethodGet
 	http.Redirect(w, r, "/files", http.StatusPermanentRedirect)
 }
