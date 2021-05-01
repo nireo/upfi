@@ -3,7 +3,6 @@ package jsonapi
 import (
 	"github.com/buaazp/fasthttprouter"
 	"github.com/nireo/upfi/middleware"
-	"github.com/nireo/upfi/templateapi"
 )
 
 // CreateJSONRouter creates a fasthttp router which contains all the json handlers. Some of the json handlers
@@ -22,7 +21,6 @@ func CreateJSONRouter() *fasthttprouter.Router {
 
 	router.PUT("/api/file/:file", middleware.CheckAuthentication(UpdateFile))
 
-	router.DELETE("/api/me", middleware.CheckAuthentication(templateapi.DeleteUser))
 	router.PUT("/api/password", middleware.CheckAuthentication(UpdatePassword))
 	router.PUT("/api/settings", middleware.CheckAuthentication(HandleSettingsChange))
 
