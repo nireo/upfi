@@ -26,6 +26,7 @@ func StartServer(port string) {
 	router.POST("/upload", middleware.CheckToken(UploadFile))
 	router.GET("/files", middleware.CheckToken(GetUserFiles))
 	router.PATCH("/file", middleware.CheckToken(UpdateFile))
+	router.POST("/download", middleware.CheckToken(DownloadFile))
 
 	// user
 	router.DELETE("/remove", middleware.CheckToken(DeleteUser))

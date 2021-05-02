@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/nireo/upfi/jsonapi"
+	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/web"
 
 	"github.com/joho/godotenv"
@@ -16,6 +17,16 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		// Stop the execution, since we need all of the environment varialbes
 		log.Fatal("Could not load the env file")
+	}
+
+	filesPath := lib.AddRootToPath("files")
+	if _, err := os.Stat(filesPath); os.IsNotExist(err) {
+		os.Mkdir(filesPath, 0777)
+	}
+
+	tempPath := lib.AddRootToPath("temp")
+	if _, err := os.Stat(tempPath); os.IsNotExist(err) {
+		os.Mkdir(tempPath, 0777)
 	}
 
 	// Store most of the environment varialbes into normal variables, so that the database connection
