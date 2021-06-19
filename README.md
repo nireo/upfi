@@ -6,27 +6,8 @@
 
 The goal of the project is to create an easy to setup file hosting service. The idea is that anyone with a linux computer can setup a upfi-instance!
 
+
 ## Setup
-
-Upfi is built with golang, so you will need to install it. Also upfi has a few go dependencies. These all are downloaded with the `Makefile` when you run make.
-
-Example of the Makefile:
-
-```
-upfi: clean
-	go get -u github.com/valyala/fasthttp
-	go get -u gorm.io/gorm
-	go get -u gorm.io/driver/postgres
-	go get -u github.com/gorilla
-	go get -u github.com/dgrijalva/jwt-go
-	go get -u github.com/gorilla/sessions
-	go get -u github.com/buaazp/fasthttprouter
-	go get -u github.com/satori/go.uuid
-	go build
-
-clean:
-	rm -rf upfi
-```
 
 You will need to create a database and configure an environment variables file. Here is a example of the `.env` file. All of the fields below must be added to the `.env` for the service to work.
 
@@ -37,27 +18,19 @@ db_port=5432
 db_host=localhost
 port=8080
 db_user=postgres
+root_dir=/home/username/go/src/github.com/nireo/upfi/
 ```
+
+The root dir is there since I found some problems with relative file paths. Such that the project uses a util function which appends the 'root_dir' variable to all of the paths.
 
 To use a different database than postgres, check out the [documentation](https://gorm.io/docs/connecting_to_the_database.html) of gorm.
 
-To build the program just type:
 
-```
-make
-```
-
-Or just to the run the service:
+Now you can just run the app.
 
 ```
 go run main.go
 ```
-
-## Running the JSON API
-
-To run the JSON API you need to run the main file with a given argument. If the `json` argument is not provided the service is started using the template version which is more lightweight.
-
-The JSON API can be used as a base to build your own client with. I'm planning on creating a react client for upfi that will take a lot of time to finish.
 
 ## Reset information
 

@@ -22,13 +22,13 @@ func ResetInformation() {
 	db.Find(&users)
 	for _, user := range users {
 		fmt.Printf("Deleted user %s\n", user.Username)
-		db.Delete(user)
+		db.Delete(User{Username: user.Username})
 	}
 
 	var files []File
 	db.Find(&files)
 	for _, file := range files {
-		db.Delete(file)
+		db.Delete(File{UUID: file.UUID})
 	}
 
 	// Create a new empty files folder

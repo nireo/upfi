@@ -21,12 +21,18 @@ func main() {
 
 	filesPath := lib.AddRootToPath("files")
 	if _, err := os.Stat(filesPath); os.IsNotExist(err) {
-		os.Mkdir(filesPath, 0777)
+		if err := os.Mkdir(filesPath, 0755); err != nil {
+			log.Fatalf("could not create file directory: %s", err)
+		}
 	}
 
+	// The temp directory is used to hold the decrypted files for some time
+	// until they can properly be sent to the user.
 	tempPath := lib.AddRootToPath("temp")
 	if _, err := os.Stat(tempPath); os.IsNotExist(err) {
-		os.Mkdir(tempPath, 0777)
+		if err := os.Mkdir(tempPath, 0755); err != nil {
+			log.Fatalf("could not create temp directory: %s", err)
+		}
 	}
 
 	// Store most of the environment varialbes into normal variables, so that the database connection

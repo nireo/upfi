@@ -96,7 +96,7 @@ func Register(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	// Use that unique id to create a folder in the files directory that in the future will contain all of the
 	// user's files.
-	err = os.Mkdir(lib.AddRootToPath("files/")+newUser.UUID, os.ModePerm)
+	err = os.Mkdir(lib.AddRootToPath("files/")+newUser.UUID, 0755)
 	if err != nil {
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return

@@ -84,12 +84,14 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// Read the bytes of the file into a buffer.
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
+		fmt.Println("failed copying buffer", err)
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}
 
 	// Encrypt the data of the file using AESCipher and store it into the before defined path.
 	if err := crypt.EncryptToDst(path, buf.Bytes(), r.Form["master"][0]); err != nil {
+		fmt.Println("encrypting failed", err)
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}
@@ -99,6 +101,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fileHeader := make([]byte, 512)
 	// Copy the headers into the FileHeader buffer
 	if _, err := file.Read(fileHeader); err != nil && err != io.EOF {
+		fmt.Println("reading file header failed", err)
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}

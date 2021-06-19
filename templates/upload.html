@@ -1,86 +1,86 @@
 {{ define "content" }}
 <div class="mx-auto container">
-  <div class="mt-5">
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-      <div class="shadow sm:rounded-md sm:overflow-hidden">
-        <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-          <div>
-            <label for="masterPass" class="sr-only">Encryption Key</label>
-            <input
-              name="master"
-              type="password"
-              id="masterPass"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
-              required
-              placeholder="Encryption key"
-            />
-          </div>
-          <div>
-            <div class="mt-1">
-              <textarea
-                id="description"
-                name="description"
-                rows="3"
-                class="appearance-none resize-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
-                placeholder="Description"
-              ></textarea>
-            </div>
-            <p class="mt-2 text-sm text-gray-500">
-              An optional description to add to the file
-            </p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              Cover photo
-            </label>
-            <div
-              class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
-            >
-              <div class="space-y-1 text-center">
-                <svg
-                  class="mx-auto h-12 w-12 text-gray-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-                  />
-                </svg>
-                <div class="flex text-sm text-gray-600">
-                  <label
-                    for="file-upload"
-                    class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file-upload"
-                      name="file"
-                      type="file"
-                      class="sr-only"
-                    />
-                  </label>
-                  <p class="pl-1">or drag and drop</p>
-                </div>
-                <p class="text-xs text-gray-500">Any file up to 100MB</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-          <button
-            type="submit"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Upload
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
+	<div class="mt-5">
+		<form action="/upload" method="POST" enctype="multipart/form-data">
+			<div class="shadow sm:rounded-md sm:overflow-hidden">
+				<div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+					<div>
+						<label for="master" class="sr-only">Encryption Key</label>
+						<input
+							name="master"
+							type="password"
+							id="master"
+							class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+							required
+							placeholder="Encryption key"
+						/>
+					</div>
+					<div>
+						<div class="mt-1">
+							<textarea
+								id="description"
+								name="description"
+								rows="3"
+								class="appearance-none resize-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md rounded-t-md focus:outline-none focus:ring-blue-600 focus:border-blue-600 focus:z-10 sm:text-sm"
+								placeholder="Description"
+							></textarea>
+						</div>
+						<p class="mt-2 text-sm text-gray-500">
+							An optional description to add to the file
+						</p>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700">
+							File to upload
+						</label>
+						<div
+							class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+						>
+							<div class="space-y-1 text-center">
+								<svg
+									class="mx-auto h-12 w-12 text-gray-400"
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+									/>
+								</svg>
+								<div class="flex text-sm text-gray-600">
+									<label
+										for="file-upload"
+										class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+									>
+										<span>Upload a file</span>
+										<input
+											id="file-upload"
+											name="file"
+											type="file"
+											class="sr-only"
+										/>
+									</label>
+									<p class="pl-1">or drag and drop</p>
+								</div>
+								<p class="text-xs text-gray-500">Any file up to 100MB</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+					<button
+						type="submit"
+						class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					>
+						Upload
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>
 {{ end }}
