@@ -54,11 +54,6 @@ func main() {
 	// Is its own function, since before there was a older implementation which used net/http.
 	serverPort := os.Getenv("port")
 
-	if len(os.Args) == 2 && os.Args[1] == "reset_information" {
-		models.ResetInformation()
-		return
-	}
-
 	if len(os.Args) == 2 && os.Args[1] == "json" {
 		jsonapi.RunJSONAPI(serverPort)
 	} else {
