@@ -33,6 +33,8 @@ var (
 	register = parse("register.html")
 
 	errorPage = parse("error_page.html")
+
+	successPage = parse("success_page.html")
 )
 
 // FilesParams contains all of the parameters to the files page.
@@ -124,6 +126,20 @@ type ErrorParams struct {
 // ErrorPage contains the renderer for the error pages
 func ErrorPage(w io.Writer, params ErrorParams) error {
 	return errorPage.Execute(w, params)
+}
+
+// SuccessPage exists, since we cannot redirect the user's request from POST -> GET, so we render a
+// success page in which the user clicks the button that actually redirects them to the link. It also
+// makes the experience more responsive.
+type SuccessPage struct {
+	Title        string
+	Description  string
+	RedirectPath string
+}
+
+// Success renders the success_page.html template with the given success page parameters.
+func Success(w io.Writer, params SuccessPage) error {
+	return successPage.Execute(w, params)
 }
 
 // parse takes in a file path and parses the embedded template files for the file and returns a

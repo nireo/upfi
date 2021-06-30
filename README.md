@@ -32,6 +32,14 @@ Now you can just run the app.
 go run main.go
 ```
 
+## TODO
+
+* Make the service more secure and follow security best practices.
+* Do some input validation to make sure user's don't post too long inputs.
+* Add a success page to remove the bug with redirecting.
+* Make the encryption key map to a single file rather than being global for the user.
+* Make it optional to encrypt a file such that the user can possibly share it.
+
 ## Contributions
 
 Anyone can contribute to the project by creating a pull request!

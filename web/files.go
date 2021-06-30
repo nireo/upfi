@@ -64,11 +64,31 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
+	var description string
+	if len(r.Form["description"]) == 0 {
+		// not provided so use a default value
+		description = "No description"
+	}
+
+	// make sure that the file isn't too long
+	if len(r.Form["description"]) != 0 && len(r.Form["description"][0]) >= 256 {
+		ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
+		return
+	}
+
+	// validate the filename
+	var filename string
+	if len(header.Filename) >= 32 {
+		// since the max length for a file can be really long, we don't want to store tons of text,
+		// and nor should the user hold such long filenames.
+		filename = header.Filename[0:32] + "..."
+	}
+
 	// Construct a database entry
 	newFileEntry := &models.File{
-		Filename:    header.Filename,
+		Filename:    filename,
 		UUID:        lib.GenerateUUID(),
-		Description: r.Form["description"][0],
+		Description: description,
 		Size:        header.Size,
 		SizeHuman:   formatFileSize(header.Size),
 		UserID:      user.ID,
@@ -84,14 +104,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// Read the bytes of the file into a buffer.
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
-		fmt.Println("failed copying buffer", err)
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}
 
 	// Encrypt the data of the file using AESCipher and store it into the before defined path.
 	if err := crypt.EncryptToDst(path, buf.Bytes(), r.Form["master"][0]); err != nil {
-		fmt.Println("encrypting failed", err)
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}
@@ -101,7 +119,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fileHeader := make([]byte, 512)
 	// Copy the headers into the FileHeader buffer
 	if _, err := file.Read(fileHeader); err != nil && err != io.EOF {
-		fmt.Println("reading file header failed", err)
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}
