@@ -126,8 +126,16 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	newFileEntry.MIME = http.DetectContentType(fileHeader)
 	db.Create(newFileEntry)
 
-	r.Method = http.MethodGet
-	http.Redirect(w, r, "/files", http.StatusMovedPermanently)
+	successParams := templates.SuccessPage{
+		Title:         "File has been uploaded.",
+		Description:   "Now you can see the new file on the files page.",
+		RedirectPath:  "files",
+		Authenticated: true,
+	}
+
+	if err := templates.Success(w, successParams); err != nil {
+		fmt.Println(err)
+	}
 }
 
 // GetSingleFile returns the database entry, which contains data about a file to the user. The user

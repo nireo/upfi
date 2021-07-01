@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -119,9 +120,16 @@ func Register(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	cookie := http.Cookie{Name: "token", Value: token, Expires: expirationTime}
 	http.SetCookie(w, &cookie)
 
-	// Redirect the new user to the files page where the user can add new files.
-	r.Method = http.MethodGet
-	http.Redirect(w, r, "/files", http.StatusPermanentRedirect)
+	successParams := templates.SuccessPage{
+		Title:         "Successfully registered",
+		Description:   "Your account has been successfully registered. Now you can start hosting your files here.",
+		RedirectPath:  "files",
+		Authenticated: true,
+	}
+
+	if err := templates.Success(w, successParams); err != nil {
+		fmt.Println(err)
+	}
 }
 
 // Login handles the login request from the /login page. It firstly checks that the a user
@@ -178,6 +186,14 @@ func Login(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.SetCookie(w, &cookie)
 
 	// Redirect the new user to the files page where the user can add new files.
-	r.Method = http.MethodGet
-	http.Redirect(w, r, "/files", http.StatusPermanentRedirect)
+	successParams := templates.SuccessPage{
+		Title:         "Successfully logged in",
+		Description:   "Now you can access all of your files.",
+		RedirectPath:  "files",
+		Authenticated: true,
+	}
+
+	if err := templates.Success(w, successParams); err != nil {
+		fmt.Println(err)
+	}
 }

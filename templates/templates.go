@@ -132,9 +132,10 @@ func ErrorPage(w io.Writer, params ErrorParams) error {
 // success page in which the user clicks the button that actually redirects them to the link. It also
 // makes the experience more responsive.
 type SuccessPage struct {
-	Title        string
-	Description  string
-	RedirectPath string
+	Title         string
+	Description   string
+	RedirectPath  string
+	Authenticated bool
 }
 
 // Success renders the success_page.html template with the given success page parameters.
