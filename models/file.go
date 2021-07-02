@@ -18,6 +18,9 @@ type File struct {
 	UserID      uint
 	Extension   string `json:"extension"`
 	MIME        string `json:"mime"`
+
+	// If this is enabled, the user cannot encrypt the file.
+	ShareableFile bool `json:"shared"`
 }
 
 // FileShare represents a file share record

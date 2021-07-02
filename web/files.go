@@ -377,3 +377,60 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 }
+
+// GetSharedByUser returns all of the files the user has shared. The user can either download
+// the files from this page. Or they can remove the file sharing.
+func GetSharedByUser(w http.ResponseWriter, r *http.Request) {
+	username := r.Header.Get("username")
+
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	files, err := user.FindSharedByFiles()
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	pageParams := templates.FilesParams{
+		Title: "your files",
+		Files: files,
+		// No need to check if the user is authenticated
+		Authenticated: true,
+	}
+
+	if err := templates.Files(w, pageParams); err != nil {
+		return
+	}
+}
+
+// GetSharedToUser returns all of the files shared to the user requesting this handler.
+// he can also delete shared files from this page.
+func GetSharedToUser(w http.ResponseWriter, r *http.Request) {
+	username := r.Header.Get("username")
+
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	files, err := user.FindSharedToFiles()
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	pageParams := templates.FilesParams{
+		Title:         "files shared to you",
+		Files:         files,
+		Authenticated: true,
+	}
+
+	if err := templates.Files(w, pageParams); err != nil {
+		return
+	}
+}

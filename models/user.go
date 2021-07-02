@@ -29,9 +29,8 @@ func (user *User) FindSharedToFiles() ([]File, error) {
 	db := lib.GetDatabase()
 
 	var sharedFileContracts []FileShare
-	if err := db.Where(&FileShare{SharedToID: user.ID}).Find(&sharedFileContracts).Error; err != nil {
-		return nil, err
-	}
+
+	db.Where(&FileShare{SharedToID: user.ID}).Find(&sharedFileContracts)
 
 	var files []File
 	for _, sf := range sharedFileContracts {
@@ -50,9 +49,7 @@ func (user *User) FindSharedByFiles() ([]File, error) {
 	db := lib.GetDatabase()
 
 	var sharedFileContracts []FileShare
-	if err := db.Where(&FileShare{SharedByID: user.ID}).Find(&sharedFileContracts).Error; err != nil {
-		return nil, err
-	}
+	db.Where(&FileShare{SharedByID: user.ID}).Find(&sharedFileContracts)
 
 	var files []File
 	for _, sf := range sharedFileContracts {
