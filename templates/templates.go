@@ -26,14 +26,14 @@ var (
 	filesPage  = parse("files_template.html")
 	fileSingle = parse("single_file_template.html")
 	upload     = parse("upload.html")
+	sharePage  = parse("share_file.html")
 
 	settings = parse("settings_template.html")
 
 	login    = parse("login.html")
 	register = parse("register.html")
 
-	errorPage = parse("error_page.html")
-
+	errorPage   = parse("error_page.html")
 	successPage = parse("success_page.html")
 )
 
@@ -141,6 +141,18 @@ type SuccessPage struct {
 // Success renders the success_page.html template with the given success page parameters.
 func Success(w io.Writer, params SuccessPage) error {
 	return successPage.Execute(w, params)
+}
+
+// ShareFilePage holds just a simple title, and the required fields, for the pages to properly render.
+type ShareFilePage struct {
+	Authenticated bool
+	Title         string
+}
+
+// SharePage renders the share_file.html file where the user can share a file to another user.
+// The page contains just a simple form.
+func SharePage(w io.Writer, params ShareFilePage) error {
+	return sharePage.Execute(w, params)
 }
 
 // parse takes in a file path and parses the embedded template files for the file and returns a

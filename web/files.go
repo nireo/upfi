@@ -380,7 +380,7 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 // GetSharedByUser returns all of the files the user has shared. The user can either download
 // the files from this page. Or they can remove the file sharing.
-func GetSharedByUser(w http.ResponseWriter, r *http.Request) {
+func GetSharedByUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	username := r.Header.Get("username")
 
 	user, err := models.FindOneUser(&models.User{Username: username})
@@ -409,7 +409,7 @@ func GetSharedByUser(w http.ResponseWriter, r *http.Request) {
 
 // GetSharedToUser returns all of the files shared to the user requesting this handler.
 // he can also delete shared files from this page.
-func GetSharedToUser(w http.ResponseWriter, r *http.Request) {
+func GetSharedToUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	username := r.Header.Get("username")
 
 	user, err := models.FindOneUser(&models.User{Username: username})
@@ -433,4 +433,67 @@ func GetSharedToUser(w http.ResponseWriter, r *http.Request) {
 	if err := templates.Files(w, pageParams); err != nil {
 		return
 	}
+}
+
+// DeleteSharedContract removes a given shared contract by the users. It takes in the type
+// of contract from the type query parameter and the file in question from the file query parameter.
+func DeleteSharedContract(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	username := r.Header.Get("username")
+
+	user, err := models.FindOneUser(&models.User{Username: username})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	toOrBy := ps.ByName("type")
+	if toOrBy != "to" && toOrBy != "by" {
+		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+		return
+	}
+
+	fileID := ps.ByName("file")
+	file, err := models.FindOneFile(&models.File{UUID: fileID})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+		return
+	}
+
+	db := lib.GetDatabase()
+	var sharedContract models.FileShare
+	if toOrBy == "to" {
+		if err := db.Where(
+			&models.FileShare{SharedToID: user.ID, SharedFileID: file.ID}).
+			First(&sharedContract).Error; err != nil {
+			ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		}
+	} else {
+		if err := db.Where(
+			&models.FileShare{SharedByID: user.ID, SharedFileID: file.ID}).
+			First(&sharedContract).Error; err != nil {
+			ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		}
+	}
+
+	db.Delete(&sharedContract)
+
+	successParams := templates.SuccessPage{
+		Title:         "Shared contract has been deleted.",
+		Description:   "The shared file has been deleted, but it can be shared again!",
+		RedirectPath:  "files",
+		Authenticated: true,
+	}
+
+	if err := templates.Success(w, successParams); err != nil {
+		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+	}
+}
+
+// ServeCreateSharedPage just renders the template containing the share page.
+func ServeCreateSharedPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	templates.SharePage(w, templates.ShareFilePage{
+		Title:         "share file to user",
+		Authenticated: true,
+	})
 }
