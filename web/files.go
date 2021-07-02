@@ -39,7 +39,7 @@ func ServeUploadPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	r.ParseMultipartForm(50 << 20) // 50 mb
+	r.ParseMultipartForm(50 << 20) // ~50 mb
 	file, header, err := r.FormFile("file")
 	if err != nil {
 		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
@@ -82,6 +82,8 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		// since the max length for a file can be really long, we don't want to store tons of text,
 		// and nor should the user hold such long filenames.
 		filename = header.Filename[0:32] + "..."
+	} else {
+		filename = header.Filename
 	}
 
 	// Construct a database entry
@@ -198,9 +200,8 @@ func GetUserFiles(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// Find all file models which are related to the user in the database.
 	var files []models.File
 	db.Where(&models.File{UserID: user.ID}).Find(&files)
-	for _, f := range files {
-		f.SizeHuman = formatFileSize(f.Size)
-	}
+
+	fmt.Printf("user: %d getting file for: %d", user.ID, files[0].ID)
 
 	pageParams := templates.FilesParams{
 		Title: "your files",
@@ -359,7 +360,6 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
 		user.UUID, file.UUID, file.Extension)
-	w.Header().Set("Content-Type", file.MIME)
 
 	tempUUID := lib.GenerateUUID()
 	tempPath := fmt.Sprintf("%s/%s%s", lib.AddRootToPath("temp"),
@@ -368,6 +368,10 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
 		return
 	}
+
+	// Set the proper headers for transfering the file.
+	w.Header().Set("Content-Type", file.MIME)
+	w.Header().Set("Content-Disposition", "attachment; filename="+file.Filename)
 
 	http.ServeFile(w, r, tempPath)
 	if err := os.Remove(tempPath); err != nil {
