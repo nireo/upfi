@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -48,6 +49,14 @@ func main() {
 	// and sets a global database varialbe in the lib package.
 	if err := models.ConnectToDatabase(databaseConfig); err != nil {
 		log.Fatal(err)
+	}
+
+	db := lib.GetDatabase()
+	var users []models.User
+	db.Where(&users).Find(&users)
+
+	for _, u := range users {
+		fmt.Printf("%s: %d", u.Username, u.ID)
 	}
 
 	// Use the optimized version of the api, which uses the fasthttp package to improve performance

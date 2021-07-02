@@ -45,7 +45,7 @@ func CheckToken(next httprouter.Handle) httprouter.Handle {
 		username, err := lib.ValidateToken(cookie.Value)
 		if err == nil {
 			// If there was no error, the token is valid and we can move on to the authenticated http handler.
-			w.Header().Add("username", username)
+			r.Header.Add("username", username)
 			next(w, r, httprouter.Params{})
 			return
 		}

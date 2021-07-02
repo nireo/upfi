@@ -201,8 +201,6 @@ func GetUserFiles(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var files []models.File
 	db.Where(&models.File{UserID: user.ID}).Find(&files)
 
-	fmt.Printf("user: %d getting file for: %d", user.ID, files[0].ID)
-
 	pageParams := templates.FilesParams{
 		Title: "your files",
 		Files: files,
