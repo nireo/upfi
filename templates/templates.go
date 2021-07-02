@@ -146,6 +146,7 @@ func Success(w io.Writer, params SuccessPage) error {
 // ShareFilePage holds just a simple title, and the required fields, for the pages to properly render.
 type ShareFilePage struct {
 	Authenticated bool
+	FileID        string // this needed is to send the request to share the correct file.
 	Title         string
 }
 

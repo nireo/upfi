@@ -490,10 +490,81 @@ func DeleteSharedContract(w http.ResponseWriter, r *http.Request, ps httprouter.
 }
 
 // ServeCreateSharedPage just renders the template containing the share page.
-func ServeCreateSharedPage(w http.ResponseWriter, r *http.Request) {
+func ServeCreateSharedPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
+	fileID := ps.ByName("file")
+
 	templates.SharePage(w, templates.ShareFilePage{
 		Title:         "share file to user",
+		FileID:        fileID,
 		Authenticated: true,
 	})
+}
+
+// CreateSharedFile handles the request to create a shared file instance.
+func CreateSharedFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	err := r.ParseMultipartForm(1 << 20) // maxMemory 1mb
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if len(r.Form["username"]) == 0 {
+		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+		return
+	}
+
+	// just easily check that the username is valid so we don't have to do unneeded
+	// computations
+	if !lib.IsUsernameValid(r.Form["username"][0]) {
+		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+		return
+	}
+
+	toShareUser, err := models.FindOneUser(&models.User{Username: r.Form["username"][0]})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	// we need this, since we need to check the ownership of the file.
+	byUser, err := models.FindOneUser(&models.User{})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	fileID := ps.ByName("file")
+	file, err := models.FindOneFile(&models.File{UUID: fileID})
+	if err != nil {
+		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+		return
+	}
+
+	// there really is no way to share another person's file from the website, but
+	// check just in case :D
+	if file.UserID != byUser.ID {
+		ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
+		return
+	}
+
+	sharedContract := &models.FileShare{
+		SharedByID:   byUser.ID,
+		SharedToID:   toShareUser.ID,
+		SharedFileID: file.ID,
+	}
+	db := lib.GetDatabase()
+	db.Create(sharedContract)
+
+	params := templates.SuccessPage{
+		Title: "File shared successfully",
+		Description: fmt.Sprintf(
+			"This file has been shared to %s, now the can be accessed by that user.", r.Form["username"][0]),
+		Authenticated: true,
+	}
+
+	if err := templates.Success(w, params); err != nil {
+		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+		return
+	}
 }

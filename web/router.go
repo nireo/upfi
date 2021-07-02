@@ -27,6 +27,11 @@ func StartServer(port string) {
 	router.GET("/files", middleware.CheckToken(GetUserFiles))
 	router.PATCH("/file", middleware.CheckToken(UpdateFile))
 	router.POST("/download", middleware.CheckToken(DownloadFile))
+	router.DELETE("/shared", middleware.CheckToken(DeleteSharedContract))
+	router.GET("/shared_by", middleware.CheckToken(GetSharedByUser))
+	router.GET("/shared_to", middleware.CheckToken(GetSharedToUser))
+	router.GET("/shared", middleware.CheckToken(ServeCreateSharedPage))
+	router.POST("/shared", middleware.CheckToken(CreateSharedFile))
 
 	// user
 	router.DELETE("/remove", middleware.CheckToken(DeleteUser))
