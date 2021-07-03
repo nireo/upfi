@@ -59,9 +59,13 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	if !lib.CheckPasswordHash(r.Form["master"][0], user.FileEncryptionMaster) {
-		ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
-		return
+	// the user wants to share the file thus it needs to be unecrypted.
+	// in the future probably do this some javascript.
+	var toBeEncrypted bool
+	if len(r.Form["master"][0]) == 0 {
+		toBeEncrypted = false
+	} else {
+		toBeEncrypted = true
 	}
 
 	var description string
@@ -88,13 +92,14 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	// Construct a database entry
 	newFileEntry := &models.File{
-		Filename:    filename,
-		UUID:        lib.GenerateUUID(),
-		Description: description,
-		Size:        header.Size,
-		SizeHuman:   formatFileSize(header.Size),
-		UserID:      user.ID,
-		Extension:   filepath.Ext(header.Filename),
+		Filename:      filename,
+		UUID:          lib.GenerateUUID(),
+		Description:   description,
+		Size:          header.Size,
+		SizeHuman:     formatFileSize(header.Size),
+		UserID:        user.ID,
+		Extension:     filepath.Ext(header.Filename),
+		ShareableFile: !toBeEncrypted,
 	}
 
 	// Define a path, where the file should be stored. Even though we encrypt the file, we
@@ -103,17 +108,41 @@ func UploadFile(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
 		user.UUID, newFileEntry.UUID, newFileEntry.Extension)
 
-	// Read the bytes of the file into a buffer.
-	buf := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buf, file); err != nil {
-		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
-		return
-	}
+	// there are two ways to store files, either encrypted or just as plaintext.
+	if toBeEncrypted {
+		// now check that the encryption key is valid.
+		if !lib.CheckPasswordHash(r.Form["master"][0], user.FileEncryptionMaster) {
+			ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
+			return
+		}
 
-	// Encrypt the data of the file using AESCipher and store it into the before defined path.
-	if err := crypt.EncryptToDst(path, buf.Bytes(), r.Form["master"][0]); err != nil {
-		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
-		return
+		// Read the bytes of the file into a buffer.
+		buf := bytes.NewBuffer(nil)
+		if _, err := io.Copy(buf, file); err != nil {
+			ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+			return
+		}
+
+		// Encrypt the data of the file using AESCipher and store it into the before defined path.
+		if err := crypt.EncryptToDst(path, buf.Bytes(), r.Form["master"][0]); err != nil {
+			ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+			return
+		}
+	} else {
+		fmt.Println("file stored as plaintext")
+
+		// the file is not encrypted since the user wants to share it.
+		f, err := os.Create(path)
+		if err != nil {
+			ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+			return
+		}
+		defer f.Close()
+
+		if _, err := io.Copy(f, file); err != nil {
+			ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+			return
+		}
 	}
 
 	// Read the mimetype so that we can set the content type properly
@@ -200,6 +229,10 @@ func GetUserFiles(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	// Find all file models which are related to the user in the database.
 	var files []models.File
 	db.Where(&models.File{UserID: user.ID}).Find(&files)
+
+	for _, f := range files {
+		f.CreatedAt.Format("02-Jan-2006")
+	}
 
 	pageParams := templates.FilesParams{
 		Title: "your files",
@@ -346,35 +379,40 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
-	if err := r.ParseMultipartForm(1 << 20); err != nil {
-		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
-		return
-	}
-
-	if len(r.Form["master"]) == 0 {
-		ErrorPageHandler(w, r, lib.BadRequestErrorPage)
-		return
-	}
-
 	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
 		user.UUID, file.UUID, file.Extension)
-
-	tempUUID := lib.GenerateUUID()
-	tempPath := fmt.Sprintf("%s/%s%s", lib.AddRootToPath("temp"),
-		tempUUID, file.Extension)
-	if err := crypt.DecryptToDst(tempPath, path, r.Form["master"][0]); err != nil {
-		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
-		return
-	}
 
 	// Set the proper headers for transfering the file.
 	w.Header().Set("Content-Type", file.MIME)
 	w.Header().Set("Content-Disposition", "attachment; filename="+file.Filename)
 
-	http.ServeFile(w, r, tempPath)
-	if err := os.Remove(tempPath); err != nil {
-		ErrorPageHandler(w, r, lib.InternalServerErrorPage)
-		return
+	// check if the file in encrypted or not.
+	if file.ShareableFile {
+		http.ServeFile(w, r, path)
+	} else {
+		if err := r.ParseMultipartForm(1 << 20); err != nil {
+			ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+			return
+		}
+
+		if len(r.Form["master"]) == 0 {
+			ErrorPageHandler(w, r, lib.BadRequestErrorPage)
+			return
+		}
+
+		tempUUID := lib.GenerateUUID()
+		tempPath := fmt.Sprintf("%s/%s%s", lib.AddRootToPath("temp"),
+			tempUUID, file.Extension)
+		if err := crypt.DecryptToDst(tempPath, path, r.Form["master"][0]); err != nil {
+			ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+			return
+		}
+
+		http.ServeFile(w, r, tempPath)
+		if err := os.Remove(tempPath); err != nil {
+			ErrorPageHandler(w, r, lib.InternalServerErrorPage)
+			return
+		}
 	}
 }
 
