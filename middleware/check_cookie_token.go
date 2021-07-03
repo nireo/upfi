@@ -37,7 +37,8 @@ func CheckToken(next httprouter.Handle) httprouter.Handle {
 		// Take the cookie named token from the request headers.
 		cookie, err := r.Cookie("token")
 		if err != nil {
-			http.Error(w, "unauthorized", http.StatusForbidden)
+			http.Error(w, "", http.StatusUnauthorized)
+			return
 		}
 
 		// Use a function from the utils that verifies the integrity of a token and returns the
@@ -50,6 +51,7 @@ func CheckToken(next httprouter.Handle) httprouter.Handle {
 			return
 		}
 
-		http.Error(w, "unauthorized", http.StatusForbidden)
+		http.Error(w, "", http.StatusUnauthorized)
+		return
 	}
 }

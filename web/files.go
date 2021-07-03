@@ -194,9 +194,16 @@ func GetSingleFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
-		// We return a not found error, since we don't want the unauthorized user to know about the file's existence.
-		ErrorPageHandler(w, r, lib.NotFoundErrorPage)
-		return
+		// check if the file is shared.
+		var sharedFile models.FileShare
+		if err := db.Where(
+			&models.FileShare{SharedToID: user.ID, SharedFileID: file.ID}).First(&sharedFile).
+			Error; err != nil {
+			// the file is not even shared
+			ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
+			return
+		}
+		// if it executes without any problem, we don't need to do anything.
 	}
 
 	// Display the user with the file's information, this template also includes the option to download a file.
@@ -375,8 +382,16 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
-		ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
-		return
+		// check if the file is shared.
+		var sharedFile models.FileShare
+		if err := db.Where(
+			&models.FileShare{SharedToID: user.ID, SharedFileID: file.ID}).First(&sharedFile).
+			Error; err != nil {
+			// the file is not even shared
+			ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
+			return
+		}
+		// if it executes without any problem, we don't need to do anything.
 	}
 
 	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
@@ -462,6 +477,8 @@ func GetSharedToUser(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
+	fmt.Printf("found %d files", len(files))
+
 	pageParams := templates.FilesParams{
 		Title:         "files shared to you",
 		Files:         files,
@@ -531,6 +548,8 @@ func DeleteSharedContract(w http.ResponseWriter, r *http.Request, ps httprouter.
 func ServeCreateSharedPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
 	fileID := ps.ByName("file")
+
+	fmt.Println(fileID)
 
 	templates.SharePage(w, templates.ShareFilePage{
 		Title:         "share file to user",
