@@ -380,6 +380,9 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		return
 	}
 
+	// we need to get the actual owner, since the files are stored in folders with the owner's
+	// uuid.
+	var ownerID string
 	// Check that the user owns the file.
 	if user.ID != file.UserID {
 		// check if the file is shared.
@@ -391,11 +394,22 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 			ErrorPageHandler(w, r, lib.ForbiddenErrorPage)
 			return
 		}
+
 		// if it executes without any problem, we don't need to do anything.
+		var owner models.User
+
+		// TODO: probably do something better if the owner doesn't actually exist anymore.
+		if err := db.Where("id = ?", sharedFile.SharedByID).First(&owner).Error; err != nil {
+			ErrorPageHandler(w, r, lib.NotFoundErrorPage)
+			return
+		}
+	} else {
+		// if the user owns the file, the owner id is easy to get.
+		ownerID = user.UUID
 	}
 
 	path := fmt.Sprintf("%s/%s/%s%s", lib.AddRootToPath("files"),
-		user.UUID, file.UUID, file.Extension)
+		ownerID, file.UUID, file.Extension)
 
 	// Set the proper headers for transfering the file.
 	w.Header().Set("Content-Type", file.MIME)
