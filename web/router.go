@@ -12,13 +12,13 @@ func StartServer(port string) {
 	router := httprouter.New()
 
 	// misc
-	router.GET("/", ServeHomePage)
+	router.GET("/", middleware.SecureHeaders(ServeHomePage))
 
 	// auth
-	router.GET("/login", ServeLoginPage)
-	router.GET("/register", ServeRegisterPage)
-	router.POST("/login", Login)
-	router.POST("/register", Register)
+	router.GET("/login", middleware.SecureHeaders(ServeLoginPage))
+	router.GET("/register", middleware.SecureHeaders(ServeRegisterPage))
+	router.POST("/login", middleware.SecureHeaders(Login))
+	router.POST("/register", middleware.SecureHeaders(ServeRegisterPage))
 
 	// files
 	router.GET("/file", middleware.CheckToken(GetSingleFile))

@@ -403,6 +403,8 @@ func DownloadFile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 			ErrorPageHandler(w, r, lib.NotFoundErrorPage)
 			return
 		}
+
+		ownerID = owner.UUID
 	} else {
 		// if the user owns the file, the owner id is easy to get.
 		ownerID = user.UUID

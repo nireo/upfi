@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/nireo/upfi/jsonapi"
 	"github.com/nireo/upfi/lib"
 	"github.com/nireo/upfi/web"
 
@@ -54,9 +53,5 @@ func main() {
 	// Is its own function, since before there was a older implementation which used net/http.
 	serverPort := os.Getenv("port")
 
-	if len(os.Args) == 2 && os.Args[1] == "json" {
-		jsonapi.RunJSONAPI(serverPort)
-	} else {
-		web.StartServer(serverPort)
-	}
+	web.StartServer(serverPort)
 }

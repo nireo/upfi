@@ -34,6 +34,8 @@ func CheckAuthentication(h fasthttp.RequestHandler) fasthttp.RequestHandler {
 // in that jwt token.
 func CheckToken(next httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		w.Header().Set("X-Frame-Options", "deny")
 		// Take the cookie named token from the request headers.
 		cookie, err := r.Cookie("token")
 		if err != nil {
@@ -53,5 +55,13 @@ func CheckToken(next httprouter.Handle) httprouter.Handle {
 
 		http.Error(w, "", http.StatusUnauthorized)
 		return
+	}
+}
+
+// SecureHeaders adds some common headers for some security things.
+func SecureHeaders(next httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		w.Header().Set("X-Frame-Options", "deny")
 	}
 }
