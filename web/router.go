@@ -3,7 +3,9 @@ package web
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/csrf"
 	"github.com/julienschmidt/httprouter"
 	"github.com/nireo/upfi/middleware"
 )
@@ -39,5 +41,8 @@ func StartServer(port string) {
 	router.GET("/settings", middleware.CheckToken(ServeSettingsPage))
 	router.POST("/settings", middleware.CheckToken(HandleSettingChange))
 
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	csrfSecret := os.Getenv("csrfkey")
+
+	CSRF := csrf.Protect([]byte(csrfSecret), nil)
+	log.Fatal(http.ListenAndServe(":"+port, CSRF(router)))
 }
