@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 )
 
 var jwtKey = []byte("something_very_secret")
@@ -58,7 +58,7 @@ func ValidateToken(tokenString string) (string, error) {
 		return "", errors.New("bad request")
 	}
 	if !tkn.Valid {
-		return "", errors.New("Token is invalid")
+		return "", errors.New("token is invalid")
 	}
 
 	// Return the username stored in the token.
